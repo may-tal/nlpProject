@@ -60,4 +60,26 @@ def invert_words(words):
     """
     return [w[::-1] for w in words]
 
-print(invert_words(['aa', 'ab']))
+def plot_top_non_stop_words_barchart(data):
+    stop = get_hebrew_stop_words()
+    general_counter = Counter()
+    for idx, row in data.iterrows():
+        non_stop_words_text = [word for word in row['text'].split() if word not in stop]
+        general_counter += Counter(non_stop_words_text)
+    most = general_counter.most_common(20)
+    x, y = [], []
+    for word, count in most:
+            x.append(word)
+            y.append(count)
+    fig = sns.barplot(x=y, y=invert_words(x))
+    plt.title("Top Non-Stopwords Barchart")
+    plt.ylabel("words")
+    plt.xlabel("frequancy")
+    plt.show(fig)
+
+def get_hebrew_stop_words():
+    stop_words = "heb_stopwords.txt"
+    with open(stop_words, encoding="utf-8") as in_file:
+        lines = in_file.readlines()
+        res = [l.strip() for l in lines]
+        return res

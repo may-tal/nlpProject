@@ -75,7 +75,7 @@ def plot_top_non_stop_words_barchart(data):
     plt.title("Top Non-Stopwords Barchart")
     plt.ylabel("words")
     plt.xlabel("frequancy")
-    plt.show(fig)
+    plt.show()
 
 def get_hebrew_stop_words():
     stop_words = "heb_stopwords.txt"

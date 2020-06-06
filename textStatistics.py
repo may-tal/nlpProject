@@ -1,6 +1,12 @@
 import matplotlib.pyplot as plt
 from collections import Counter
 import seaborn as sns
+#import stanza
+import requests
+import json
+from time import sleep
+import pandas as pd
+from pandas.io.json import json_normalize
 
 def split_by_whitespace(data):
     """
@@ -83,3 +89,18 @@ def get_hebrew_stop_words():
         lines = in_file.readlines()
         res = [l.strip() for l in lines]
         return res
+
+def print_yap_analysis(text):
+    text = text.replace(r'"', r'\"')
+    url = f'https://www.langndata.com/api/heb_parser?token=a70b54d01ef5e9c055ab9051b9deafee'
+    _json = '{"data":"' + text.strip() + '"}'
+    #         print(url)
+    #         print(_json)
+    headers = {'content-type': 'application/json'}
+    sleep(0.5)
+    r = requests.post(url, data=_json.encode('utf-8'), headers={'Content-type': 'application/json; charset=utf-8'})
+    json_obj = r.json()
+
+    md_lattice = json_obj["md_lattice"]
+    res_df = pd.io.json.json_normalize([md_lattice[i] for i in md_lattice.keys()])
+    return res_df

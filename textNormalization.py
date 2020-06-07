@@ -19,5 +19,10 @@ def stemmer_and_lemmatizer(data, file_name):
     out_path = PATH + file_name + ".csv"
     total_df.to_csv(out_path, index=False, encoding='utf-8')
 
+def remove_duplicates_characters(data):
+    for idx, row in data.iterrows():
+        data[idx]["text"] = "hi"
+        print("hi")
+
 
 

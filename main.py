@@ -1,6 +1,6 @@
 import textStatistics as ts
 from data import *
-import cleanData as cd
+import textNormalization as tn
 
 PATH = 'Data/Data/clean'
 
@@ -10,8 +10,8 @@ def main():
     # for idx, row in d.iterrows():
     #     ts.print_yap_analysis(row["text"])
     #     break
-    cd.stemmer_and_lemmatizer(d, 'out')
-
+    # tn.stemmer_and_lemmatizer(d, 'out')
+    tn.remove_duplicates_charcters(d)
 
 if __name__ == "__main__":
     main()

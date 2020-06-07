@@ -61,12 +61,14 @@ def plot_top_20_common_words(data):
 def invert_words(words):
     """
     this function invert every word from the given list
-    :param words:
-    :return:
     """
     return [w[::-1] for w in words]
 
+
 def plot_top_non_stop_words_barchart(data):
+    """
+    this function plot toe non stop words barchart
+    """
     stop = get_hebrew_stop_words()
     general_counter = Counter()
     for idx, row in data.iterrows():
@@ -83,24 +85,30 @@ def plot_top_non_stop_words_barchart(data):
     plt.xlabel("frequancy")
     plt.show()
 
+
 def get_hebrew_stop_words():
+    """
+    this function return the hebrew stop words
+    """
     stop_words = "heb_stopwords.txt"
     with open(stop_words, encoding="utf-8") as in_file:
         lines = in_file.readlines()
         res = [l.strip() for l in lines]
         return res
 
-def print_yap_analysis(text):
+
+def get_yap_analysis(text):
+    """
+    this function return yap analysis
+    """
     text = text.replace(r'"', r'\"')
     url = f'https://www.langndata.com/api/heb_parser?token=a70b54d01ef5e9c055ab9051b9deafee'
     _json = '{"data":"' + text.strip() + '"}'
-    #         print(url)
-    #         print(_json)
-    headers = {'content-type': 'application/json'}
-    sleep(0.5)
-    r = requests.post(url, data=_json.encode('utf-8'), headers={'Content-type': 'application/json; charset=utf-8'})
+    sleep(3)
+    r = requests.post(url, data=_json.encode('utf-8'), headers={'Content-type': 'application/json; charset=utf-8'},
+                      verify=False)
     json_obj = r.json()
-
     md_lattice = json_obj["md_lattice"]
     res_df = pd.io.json.json_normalize([md_lattice[i] for i in md_lattice.keys()])
+    print(res_df)
     return res_df

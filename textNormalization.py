@@ -18,8 +18,7 @@ def text_normalization(data):
 
 def stemmer_and_lemmatizer(data):
     for idx, row in data.iterrows():
-        print(row["text"])
-        yap_df = ts.print_yap_analysis(row["text"])
+        yap_df = ts.get_yap_analysis(row["text"])
         lemme = yap_df["lemma"].values
         new_row = ' '.join(lemme)
         new_row += "\n"

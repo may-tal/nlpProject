@@ -1,12 +1,12 @@
 from sklearn.metrics import precision_score, recall_score, f1_score, fbeta_score, accuracy_score
 from sklearn.metrics import roc_curve, confusion_matrix, auc
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import seaborn as sns
 
-class Evaluation:
-    def __init__(self, test, prediction, b):
+
+class Evaluator:
+    """
+    this class compute all measures scores for given classifier and plot the errors and the roc curve
+    """
+    def __init__(self, prediction, test,  b):
         self.test = test
         self.prediction = prediction
         self.precision_score = precision_score(test['label'], prediction)
@@ -17,49 +17,62 @@ class Evaluation:
         self.accuracy_score = accuracy_score(test['label'], prediction)
         self.beta = b
 
+    def get_accuracy_score(self):
+        """
+        this function return the accuracy score
+        """
+        return float("%0.4f" % self.accuracy_score)
+
     def get_recall_score(self):
-        return self.recall_score
+        """
+        this function return the recall score
+        """
+        return float("%0.4f" % self.recall_score)
 
     def get_precision_score(self):
-        return self.precision_score
+        """
+        this function return the precision score
+        """
+        return float("%0.4f" % self.precision_score)
 
     def get_f1_score(self):
-        return self.f1_score
+        """
+        this function return F1 score
+        """
+        return float("%0.4f" % self.f1_score)
 
     def get_fb_score(self):
-        return self.fb_score
+        """
+        this function return Fb score
+        """
+        return float("%0.4f" % self.fb_score)
 
     def get_confusion_matrix(self):
+        """
+        this function return the confusion matrix
+        """
         return self.confusion_matrix
 
     def show_error(self):
+        """
+        this function print the amount of errors and print them
+        """
         count = 0
-        for row in self.test:
+        error_count = 0
+        for i, row in self.test.iterrows():
             if row['label'] != self.prediction[count]:
                 print("text: " + row['text'])
-                print("true label: " + row['label'])
-                print("pred label: " + self.prediction[count])
+                print("true label: " + str(row['label']))
+                print("pred label: " + str(self.prediction[count]))
+                error_count += 1
             count += 1
-
-    def plot_roc_curve(self):
-        fpr, tpr, _ = roc_curve(self.test['label'], self.prediction, pos_label=1)
-        roc_auc = auc(fpr, tpr)
-        plt.title("ROC curve")
-        plt.ylabel("true positive rate")
-        plt.xlabel("false positive rate")
-        plt.plot(fpr, tpr, lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
-        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.legend(loc="lower right")
-        plt.show()
+        print("found " + str(error_count) + " errors")
 
     def get_evaluation(self):
-        columns = ['Recall score', 'Precision score', 'Accuracy score', 'F1 score', 'F' + self.beta + ' score']
-        values = [self.recall_score, self.precision_score, self.accuracy_score, self.f1_score, self.fb_score]
-        table = pd.DataFrame(values, columns=columns)
-        cm = sns.light_palette('blue', as_cmap=True)
-        s = table.style.background_gradient(cmap=cm, low=0, high=1, axis=0)
-        print(s)
-        self.show_error()
-        self.plot_roc_curve()
+        """
+        this function return all the scores, print the errors and plot the roc curve
+        """
+        scores = [self.get_recall_score(), self.get_precision_score(), self.get_accuracy_score(), self.get_f1_score(),
+                  self.get_fb_score()]
+        # self.show_error()
+        return scores

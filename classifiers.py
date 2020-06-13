@@ -6,7 +6,6 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 import matplotlib.pyplot as plt
 from sklearn.naive_bayes import MultinomialNB
-from evaluate_sentiment import Evaluator
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from catboost import CatBoostClassifier

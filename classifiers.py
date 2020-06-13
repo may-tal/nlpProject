@@ -9,6 +9,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from catboost import CatBoostClassifier
+from evaluation import Evaluation
 
 
 def prepare_data_for_classify(data_df, random_state=None):
@@ -71,6 +72,10 @@ def tf_idf(x_train_counts, x_test_counts):
     x_test_tfidf = tf_transformer.transform(x_test_counts)
 
     return x_train_tf, x_test_tfidf
+
+
+def majority_classifier(test_df):
+    return len(test_df) * [0]
 
 
 def multinomial_naive_bayes_classifier(x_train_tf, train_df, x_test_tfidf):
@@ -154,6 +159,32 @@ def cat_boost_classifier(x_train_tf, train_df, x_test_tfidf):
 
     return predictions
 
+
+def get_all_classifiers_evaluations(data):
+    train_df, test_df = prepare_data_for_classify(data)
+    data_exploration(train_df)
+    x_train_counts, x_test_counts = bag_of_words(train_df, test_df)
+    x_train_tf, x_test_tfidf = tf_idf(x_train_counts, x_test_counts)
+
+    prediction_M = majority_classifier(test_df)
+    get_classifier_evaluation(prediction_M, test_df)
+
+    prediction_NB = multinomial_naive_bayes_classifier(x_train_tf, train_df, x_test_tfidf)
+    get_classifier_evaluation(prediction_NB, test_df)
+
+    prediction_RL = regression_logistic_classifier(x_train_tf, train_df, x_test_tfidf)
+    get_classifier_evaluation(prediction_RL, test_df)
+
+    prediction_RF = random_forest_classifier(x_train_tf, train_df, x_test_tfidf)
+    get_classifier_evaluation(prediction_RF, test_df)
+
+    prediction_CB = cat_boost_classifier(x_train_tf, train_df, x_test_tfidf)
+    get_classifier_evaluation(prediction_CB, test_df)
+
+
+def get_classifier_evaluation(prediction, test, b=2):
+    evaluation = Evaluation(prediction, test, b)
+    evaluation.get_evaluation()
 
 
 

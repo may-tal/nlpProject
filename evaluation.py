@@ -1,7 +1,9 @@
 from sklearn.metrics import precision_score, recall_score, f1_score, fbeta_score, accuracy_score
 from sklearn.metrics import roc_curve, confusion_matrix, auc
 import matplotlib.pyplot as plt
-
+import numpy as np
+import pandas as pd
+import seaborn as sns
 
 class Evaluation:
     def __init__(self, test, prediction, b):
@@ -13,6 +15,7 @@ class Evaluation:
         self.confusion_matrix = confusion_matrix(test['label'], prediction)
         self.fb_score = fbeta_score(test['label'], prediction, b)
         self.accuracy_score = accuracy_score(test['label'], prediction)
+        self.beta = b
 
     def get_recall_score(self):
         return self.recall_score
@@ -51,5 +54,12 @@ class Evaluation:
         plt.legend(loc="lower right")
         plt.show()
 
-
-
+    def get_evaluation(self):
+        columns = ['Recall score', 'Precision score', 'Accuracy score', 'F1 score', 'F' + self.beta + ' score']
+        values = [self.recall_score, self.precision_score, self.accuracy_score, self.f1_score, self.fb_score]
+        table = pd.DataFrame(values, columns=columns)
+        cm = sns.light_palette('blue', as_cmap=True)
+        s = table.style.background_gradient(cmap=cm, low=0, high=1, axis=0)
+        print(s)
+        self.show_error()
+        self.plot_roc_curve()

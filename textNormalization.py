@@ -68,6 +68,7 @@ def remove_duplicates_characters(data):
                     no_dup_word = "בנזונה"
                 if re.match(r'ב+ת+ז+ו+נ+ה+', no_dup_word):
                     no_dup_word = "בנזונה"
+            no_dup_word = re.sub(r'\\?\\+', r'\1', word)
             new_row += no_dup_word + " "
         new_row = new_row[:-1]
         new_row += "\n"
@@ -91,6 +92,9 @@ def translate_slang(data):
         new_row += "\n"
         data.iloc[[idx], [0]] = new_row
     return data
+
+
+
 
 
 

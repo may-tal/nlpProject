@@ -178,10 +178,10 @@ def get_all_classifiers_evaluations(data):
     prediction_RF, predict_proba_RF = random_forest_classifier(x_train_tf, train_df, x_test_tfidf)
     scores.append(get_classifier_evaluation(prediction_RF, test_df))
 
-    prediction_CB, predict_proba_CB = cat_boost_classifier(x_train_tf, train_df, x_test_tfidf)
-    scores.append(get_classifier_evaluation(prediction_CB, test_df))
+    # prediction_CB, predict_proba_CB = cat_boost_classifier(x_train_tf, train_df, x_test_tfidf)
+    # scores.append(get_classifier_evaluation(prediction_CB, test_df))
 
-    plot_roc_curve(test_df, prediction_M, predict_proba_NB, predict_proba_RL, predict_proba_RF, predict_proba_CB)
+    plot_roc_curve(test_df, prediction_M, predict_proba_NB, predict_proba_RL, predict_proba_RF)
     plot_table_scores(scores)
 
 
@@ -197,7 +197,7 @@ def plot_table_scores(scores):
     vals = np.around(df.values, 2)
     norm = plt.Normalize(vals.min() - 1, vals.max() + 1)
     colours = plt.cm.hot(norm(vals))
-    rows_labels = ['majority', 'naive bayes', 'regression logistic', 'random forest', 'cat boost']
+    rows_labels = ['majority', 'naive bayes', 'regression logistic', 'random forest']
     ax.table(cellText=df.values, colLabels=df.columns, loc='center', cellColours=colours, rowLabels=rows_labels)
     fig.tight_layout()
     plt.savefig("scores.png")
@@ -213,7 +213,7 @@ def get_classifier_evaluation(prediction, test, b=2):
     return evaluation.get_evaluation()
 
 
-def plot_roc_curve(test, pred_m, pred_nb, pred_rl, pred_rf, pred_cb):
+def plot_roc_curve(test, pred_m, pred_nb, pred_rl, pred_rf):
     """
     this function plot the roc curve
     """
@@ -233,9 +233,9 @@ def plot_roc_curve(test, pred_m, pred_nb, pred_rl, pred_rf, pred_cb):
     roc_auc_rf = roc_auc_score(test['label'], pred_rf)
     plt.plot(fpr_rf, tpr_rf, lw=2, label='Random forest- ROC curve (area = %0.2f)' % roc_auc_rf)
 
-    fpr_cb, tpr_cb, _ = roc_curve(test['label'], pred_cb, pos_label=1)
-    roc_auc_cb = roc_auc_score(test['label'], pred_cb)
-    plt.plot(fpr_cb, tpr_cb, lw=2, label='Cat boost- ROC curve (area = %0.2f)' % roc_auc_cb)
+    # fpr_cb, tpr_cb, _ = roc_curve(test['label'], pred_cb, pos_label=1)
+    # roc_auc_cb = roc_auc_score(test['label'], pred_cb)
+    # plt.plot(fpr_cb, tpr_cb, lw=2, label='Cat boost- ROC curve (area = %0.2f)' % roc_auc_cb)
 
     plt.title("ROC CURVE")
     plt.ylabel("true positive rate")

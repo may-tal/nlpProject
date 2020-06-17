@@ -6,7 +6,7 @@ import textNormalization as tn
 PATH = 'Data/Data/clean'
 
 def main():
-    d = read_data(['sentences.neg', 'sentences.pos'], PATH)
+    #d = read_data(['sentences.neg', 'sentences.pos'], PATH)
 
     # text normalization (get the clean data)
     # d_norm = tn.text_normalization(d)

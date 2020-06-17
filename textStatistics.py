@@ -58,7 +58,7 @@ def plot_top_20_common_words(data, file_name):
     plt.ylabel("words")
     plt.xlabel("frequancy")
     plt.show()
-    plt.savefig("statistic/" + file_name)
+    plt.savefig("statistic/" + file_name + ".png")
 
 
 def plot_top_20_bigrams_words(data, file_name):
@@ -76,7 +76,7 @@ def plot_top_20_bigrams_words(data, file_name):
     plt.ylabel("words")
     plt.xlabel("frequancy")
     plt.show()
-    plt.savefig("statistic/" + file_name)
+    plt.savefig("statistic/" + file_name + ".png")
 
 
 def invert_words(words):
@@ -105,7 +105,7 @@ def plot_top_non_stop_words_barchart(data, file_name):
     plt.ylabel("words")
     plt.xlabel("frequancy")
     plt.show()
-    plt.savefig("statistic/" + file_name)
+    plt.savefig("statistic/" + file_name + ".png")
 
 
 def get_hebrew_stop_words():
@@ -141,7 +141,7 @@ def plot_top_bigrams_non_stop_words_barchart(data, file_name):
     plt.ylabel("words")
     plt.xlabel("frequancy")
     plt.show()
-    plt.savefig("statistic/" + file_name)
+    plt.savefig("statistic/" + file_name + ".png")
 
 
 def get_yap_analysis(text):

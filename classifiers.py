@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import plot_confusion_matrix
 from catboost import CatBoostClassifier
 from evaluation import Evaluator
 import numpy as np
@@ -168,17 +169,21 @@ def get_all_classifiers_evaluations(data):
     scores = []
 
     prediction_M = majority_classifier(test_df)
-    scores.append(get_classifier_evaluation(prediction_M, test_df))
+    print("==========majority_classifier=============")
+    scores.append(get_classifier_evaluation(prediction_M, test_df, 'majority classifier'))
 
     prediction_NB, predict_proba_NB = multinomial_naive_bayes_classifier(x_train_tf, train_df, x_test_tfidf)
-    scores.append(get_classifier_evaluation(prediction_NB, test_df))
+    print("\n==========multinomial_naive_bayes_classifier=============")
+    scores.append(get_classifier_evaluation(prediction_NB, test_df, 'naive bayes'))
 
     prediction_RL, predict_proba_RL, clf = regression_logistic_classifier(x_train_tf, train_df, x_test_tfidf)
-    scores.append(get_classifier_evaluation(prediction_RL, test_df))
+    print("\n==========regression_logistic_classifier=============")
+    scores.append(get_classifier_evaluation(prediction_RL, test_df, 'regression logistic'))
     get_strongest_words(0, clf, train_df)
 
     prediction_RF, predict_proba_RF = random_forest_classifier(x_train_tf, train_df, x_test_tfidf)
-    scores.append(get_classifier_evaluation(prediction_RF, test_df))
+    print("\n==========random_forest_classifier=============")
+    scores.append(get_classifier_evaluation(prediction_RF, test_df, 'random forest'))
 
     # prediction_CB, predict_proba_CB = cat_boost_classifier(x_train_tf, train_df, x_test_tfidf)
     # scores.append(get_classifier_evaluation(prediction_CB, test_df))
@@ -206,12 +211,14 @@ def plot_table_scores(scores):
     plt.show()
 
 
-def get_classifier_evaluation(prediction, test, b=2):
+def get_classifier_evaluation(prediction, test, classifier_name, b=2):
     """
     this function get the evaluation of each classifier: print the amount of errors and the text of them, plot roc_curve
     and return the measures scores.
     """
     evaluation = Evaluator(prediction, test, b)
+    evaluation.show_error()
+    evaluation.plot_confusion_matrix(classifier_name)
     return evaluation.get_evaluation()
 
 
@@ -246,6 +253,7 @@ def plot_roc_curve(test, pred_m, pred_nb, pred_rl, pred_rf):
     plt.ylim([0.0, 1.02])
     plt.legend(loc="lower right")
     plt.show()
+
 
 
 

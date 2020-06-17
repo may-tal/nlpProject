@@ -6,7 +6,7 @@ import textNormalization as tn
 PATH = 'Data/Data/clean'
 
 def main():
-    #d = read_data(['sentences.neg', 'sentences.pos'], PATH)
+    d = read_data(['sentences.neg', 'sentences.pos'], PATH)
 
     # text normalization (get the clean data)
     # d_norm = tn.text_normalization(d)
@@ -18,7 +18,7 @@ def main():
     # ts.get_text_statistics(d_norm, "normData")
 
     # classified data
-    classifiers.get_all_classifiers_evaluations(d_norm)
+    classifiers.get_all_classifiers_evaluations(d)
 
 if __name__ == "__main__":
     main()

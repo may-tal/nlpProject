@@ -1,5 +1,9 @@
 from sklearn.metrics import precision_score, recall_score, f1_score, fbeta_score, accuracy_score
-from sklearn.metrics import roc_curve, confusion_matrix, auc
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import pandas as pd
 
 
 class Evaluator:
@@ -9,11 +13,11 @@ class Evaluator:
     def __init__(self, prediction, test,  b):
         self.test = test
         self.prediction = prediction
-        self.precision_score = precision_score(test['label'], prediction, average="binary")
-        self.recall_score = recall_score(test['label'], prediction, average="binary")
-        self.f1_score = f1_score(test['label'], prediction, average="binary")
+        self.precision_score = precision_score(test['label'], prediction, average="binary", pos_label=1)
+        self.recall_score = recall_score(test['label'], prediction, average="binary", pos_label=1)
+        self.f1_score = f1_score(test['label'], prediction, average="binary", pos_label=1)
         self.confusion_matrix = confusion_matrix(test['label'], prediction)
-        self.fb_score = fbeta_score(test['label'], prediction, b, average="binary")
+        self.fb_score = fbeta_score(test['label'], prediction, b, average="binary", pos_label=1)
         self.accuracy_score = accuracy_score(test['label'], prediction)
         self.beta = b
 
@@ -76,3 +80,23 @@ class Evaluator:
                   self.get_fb_score()]
         # self.show_error()
         return scores
+
+    def plot_confusion_matrix(self, title):
+        confusion_matrix = self.confusion_matrix
+        FP = confusion_matrix.sum(axis=0) - np.diag(confusion_matrix)
+        FN = confusion_matrix.sum(axis=1) - np.diag(confusion_matrix)
+        TP = np.diag(confusion_matrix)
+        print(FP, FN, TP)
+
+        class_names = [0, 1]
+        fig, ax = plt.subplots()
+        tick_marks = np.arange(len(class_names))
+        plt.xticks(tick_marks, class_names)
+        plt.yticks(tick_marks, class_names)
+        sns.heatmap(pd.DataFrame(self.confusion_matrix), annot=True, cmap="YlGnBu", fmt='g')
+        ax.xaxis.set_label_position("top")
+        plt.tight_layout()
+        plt.title('Confusion matrix- ' + title, y=1.1)
+        plt.ylabel('Actual label')
+        plt.xlabel('Predicted label')
+        plt.show()

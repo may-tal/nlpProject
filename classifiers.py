@@ -102,19 +102,20 @@ def regression_logistic_classifier(x_train_tf, train_df, x_test_tfidf):
     :return: predicted labels
     """
     regression_logistic = LogisticRegression()
-    regression_logistic.fit(x_train_tf, train_df.label)
+    clf = regression_logistic.fit(x_train_tf, train_df.label)
     predictions = regression_logistic.predict(x_test_tfidf)
     predict_proba = regression_logistic.predict_proba(x_test_tfidf)[:, 1]
-    return predictions, predict_proba
+    return predictions, predict_proba, clf
 
 
-def get_strongest_words(label, clf):
+def get_strongest_words(label, clf, traindf):
     """
     get the words that most influenced the classifier
     :param label: violence or not
     :param clf: classifier
     """
     cv = CountVectorizer()
+    cv.fit_transform(traindf.text)
     inverse_dict = {cv.vocabulary_[w]: w for w in cv.vocabulary_.keys()}
     cur_coef = clf.coef_[label]
     word_df=pd.DataFrame({"val":cur_coef}).reset_index().sort_values(["val"],ascending=[False])
@@ -172,8 +173,9 @@ def get_all_classifiers_evaluations(data):
     prediction_NB, predict_proba_NB = multinomial_naive_bayes_classifier(x_train_tf, train_df, x_test_tfidf)
     scores.append(get_classifier_evaluation(prediction_NB, test_df))
 
-    prediction_RL, predict_proba_RL = regression_logistic_classifier(x_train_tf, train_df, x_test_tfidf)
+    prediction_RL, predict_proba_RL, clf = regression_logistic_classifier(x_train_tf, train_df, x_test_tfidf)
     scores.append(get_classifier_evaluation(prediction_RL, test_df))
+    get_strongest_words(0, clf, train_df)
 
     prediction_RF, predict_proba_RF = random_forest_classifier(x_train_tf, train_df, x_test_tfidf)
     scores.append(get_classifier_evaluation(prediction_RF, test_df))

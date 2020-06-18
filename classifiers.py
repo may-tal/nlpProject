@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import plot_confusion_matrix
+from matplotlib.font_manager import FontProperties
 from catboost import CatBoostClassifier
 from evaluation import Evaluator
 import numpy as np
@@ -183,13 +183,16 @@ def get_all_classifiers_evaluations(data):
 
     prediction_RF, predict_proba_RF = random_forest_classifier(x_train_tf, train_df, x_test_tfidf)
     print("\n==========random_forest_classifier=============")
-    scores.append(get_classifier_evaluation(prediction_RF, test_df, 'random forest'))
+    rf_scores = get_classifier_evaluation(prediction_RF, test_df, 'random forest')
+    scores.append(rf_scores)
 
     # prediction_CB, predict_proba_CB = cat_boost_classifier(x_train_tf, train_df, x_test_tfidf)
     # scores.append(get_classifier_evaluation(prediction_CB, test_df))
 
     plot_roc_curve(test_df, prediction_M, predict_proba_NB, predict_proba_RL, predict_proba_RF)
     plot_table_scores(scores)
+
+    return rf_scores
 
 
 def plot_table_scores(scores):
@@ -217,9 +220,7 @@ def get_classifier_evaluation(prediction, test, classifier_name, b=2):
     and return the measures scores.
     """
     evaluation = Evaluator(prediction, test, b)
-    evaluation.show_error()
-    evaluation.plot_confusion_matrix(classifier_name)
-    return evaluation.get_evaluation()
+    return evaluation.get_evaluation(classifier_name)
 
 
 def plot_roc_curve(test, pred_m, pred_nb, pred_rl, pred_rf):
@@ -254,6 +255,48 @@ def plot_roc_curve(test, pred_m, pred_nb, pred_rl, pred_rf):
     plt.legend(loc="lower right")
     plt.show()
 
+
+def compare_our_result(rf, tn_rf):
+    """
+    compare results of method stages
+    :param rf: random forest stage results
+    :param tn_rf: text normalization and random forest results
+    :return: None, build graphs
+    """
+    # convert to percentages
+    rf = [x * 100 for x in rf]
+    tn_rf = [x * 100 for x in tn_rf]
+
+    plt.clf()
+
+    # set width of bar
+    bar_width = 0.10
+
+    # Set position of bar on X axis
+    r1 = np.arange(len(rf))
+    r2 = [x + bar_width for x in r1]
+
+    # Make the plot
+    plt.bar(r1, rf, color='orange', width=bar_width, edgecolor='white', label='RF')
+    plt.bar(r2, tn_rf, color='blue', width=bar_width, edgecolor='white', label='text normalization + RF')
+
+
+    plt.ylabel('Precision percentage', fontweight='bold')
+    # Add xticks on the middle of the group bars
+    plt.xticks([r + bar_width for r in range(len(rf))], ['precision', 'recall', 'accuracy', 'F1', 'F2'])
+
+    plt.title("Compare stages result")
+
+    # limit the graph
+    plt.ylim(bottom=0, top=104.9)
+
+    # Create legend & Save graphic
+    font_p = FontProperties()
+    font_p.set_size('small')
+    plt.legend(loc='upper left', prop=font_p)
+
+    plt.savefig("Compare stages result.png")
+    plt.show()
 
 
 

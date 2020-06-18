@@ -72,22 +72,17 @@ class Evaluator:
             count += 1
         print("found " + str(error_count) + " errors")
 
-    def get_evaluation(self):
+    def get_evaluation(self, title):
         """
         this function return all the scores, print the errors and plot the roc curve
         """
         scores = [self.get_recall_score(), self.get_precision_score(), self.get_accuracy_score(), self.get_f1_score(),
                   self.get_fb_score()]
-        # self.show_error()
+        self.show_error()
+        self.plot_confusion_matrix(title)
         return scores
 
     def plot_confusion_matrix(self, title):
-        confusion_matrix = self.confusion_matrix
-        FP = confusion_matrix.sum(axis=0) - np.diag(confusion_matrix)
-        FN = confusion_matrix.sum(axis=1) - np.diag(confusion_matrix)
-        TP = np.diag(confusion_matrix)
-        print(FP, FN, TP)
-
         class_names = [0, 1]
         fig, ax = plt.subplots()
         tick_marks = np.arange(len(class_names))
@@ -100,3 +95,4 @@ class Evaluator:
         plt.ylabel('Actual label')
         plt.xlabel('Predicted label')
         plt.show()
+

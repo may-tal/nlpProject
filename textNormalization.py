@@ -113,6 +113,34 @@ def fix_yap(data):
     return data
 
 
+def get_text_non_stopwords(data):
+    """
+    This function return the text without stop words
+    """
+    heb_stopwords = get_hebrew_stopwords()
+    for idx, row in data.iterrows():
+        words = row['text'].split()
+        new_row = ""
+        for word in words:
+            if word in heb_stopwords:
+                continue
+            else:
+                new_row += word + " "
+        new_row = new_row[:-1]
+        data.iloc[[idx], [0]] = new_row
+    return data
+
+
+def get_hebrew_stopwords():
+    """
+    This function return the hebrew stopwords as list
+    """
+    with open('heb_stopwords.txt', encoding="utf-8") as in_file:
+        lines = in_file.readlines()
+        res = [l.strip() for l in lines]
+    res.extend([",", "."])
+    return res
+
 
 
 

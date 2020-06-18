@@ -135,7 +135,7 @@ def get_hebrew_stopwords():
     """
     This function return the hebrew stopwords as list
     """
-    with open('heb_stopwords.txt', encoding="utf-8") as in_file:
+    with open('new_heb_stopwords.txt', encoding="utf-8") as in_file:
         lines = in_file.readlines()
         res = [l.strip() for l in lines]
     res.extend([",", "."])

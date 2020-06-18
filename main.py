@@ -23,8 +23,6 @@ def main():
     # tn_rf_score = classifiers.get_all_classifiers_evaluations(d_norm)
     # classifiers.compare_our_result(rf_score, tn_rf_score)
 
-    x = tn.get_hebrew_stopwords()
-    print(x)
 
 if __name__ == "__main__":
     main()

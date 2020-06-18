@@ -1,12 +1,13 @@
 import textStatistics as ts
 from data import *
-import classifiers
+import classifiers as clf
 import textNormalization as tn
+import clustering
 
 PATH = 'Data/Data/clean'
 
 def main():
-    d = read_data(['sentences.neg', 'sentences.pos'], PATH)
+    #d = read_data(['sentences.neg', 'sentences.pos'], PATH)
 
     # text normalization (get the clean data)
     # d_norm = tn.text_normalization(d)
@@ -18,7 +19,9 @@ def main():
     # ts.get_text_statistics(d_norm, "normData")
 
     # classified data
-    classifiers.get_all_classifiers_evaluations(d)
+    #clf.get_all_classifiers_evaluations(d)
+    clustering.get_calss(d_norm)
+
 
 if __name__ == "__main__":
     main()

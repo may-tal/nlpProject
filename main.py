@@ -2,7 +2,11 @@ import textStatistics as ts
 from data import *
 import classifiers
 import textNormalization as tn
+<<<<<<< Updated upstream
 import clustering
+=======
+import topicModeling as tm
+>>>>>>> Stashed changes
 
 PATH = 'Data/Data/clean'
 
@@ -28,6 +32,10 @@ def main():
 
     # K-means clustering
     clustering.get_class(d_norm)
+
+    vectors, vocab = tm.data_processing(d_norm)
+    u, s, vh = tm.svd(vectors)
+    print(tm.show_topics(vh[:6], vocab))
 
 
 if __name__ == "__main__":

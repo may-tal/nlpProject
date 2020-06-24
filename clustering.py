@@ -38,7 +38,9 @@ def K_means_clustering(train_df):
     prediction = model.predict(Y)
     print(prediction)
 
-    bidi_text = get_display(" ".join(np.array(terms)[order_centroids[1, :10]]))
+
+    bidi_text = get_display(" ".join(np.array(terms)[order_centroids[1, :5]][::-1]))
+    print(bidi_text)
     pos_wordcloud = WordCloud(width=600, height=400, font_path='externals/FreeSans/FreeSansBold.ttf').generate(bidi_text)
     plt.figure(figsize=(10, 8), facecolor='k')
     plt.imshow(pos_wordcloud, interpolation='bilinear')

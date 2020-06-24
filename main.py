@@ -16,6 +16,7 @@ def main():
     # d_norm.to_csv('d_norm.csv', index=False, encoding='utf-8')
 
     d_norm = pd.read_csv('d_norm.csv')
+    d_norm = tn.fix_yap(d_norm)
     d_norm = tn.get_text_non_stopwords(d_norm)
     d_norm_pos = d_norm[d_norm['label'] == 1]
 

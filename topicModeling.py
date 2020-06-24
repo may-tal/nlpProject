@@ -60,6 +60,3 @@ def nmf(vectors, num_of_topics=8):
     h1 = clf.components_
     return w1, h1
 
-def lda()
-
-

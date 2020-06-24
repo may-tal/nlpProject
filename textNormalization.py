@@ -105,6 +105,12 @@ def fix_yap(data):
         for word in words:
             if word == "מך":
                 new_row += "מכות" + " "
+            elif word == "יבן":
+                new_row += "יא בן" + " "
+            elif word == "זנה":
+                new_row += "זונה" + " "
+            elif word == "יבת":
+                new_row += "יא בת" + " "
             else:
                 new_row += word + " "
         new_row = new_row[:-1]
@@ -140,10 +146,3 @@ def get_hebrew_stopwords():
         res = [l.strip() for l in lines]
     res.extend([",", "."])
     return res
-
-
-
-
-
-
-

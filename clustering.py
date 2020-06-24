@@ -12,7 +12,7 @@ def K_means_clustering(train_df):
     tfidf_vectorizer = TfidfVectorizer(lowercase=False)
     X = tfidf_vectorizer.fit_transform(train_df.text)
 
-    true_k = 4
+    true_k = 6
     model = KMeans(n_clusters=true_k, init='k-means++', max_iter=400, n_init=15)
     model.fit(X)
     y_kmeans = model.predict(X)
@@ -39,16 +39,20 @@ def K_means_clustering(train_df):
     print(prediction)
 
 
-    bidi_text = get_display(" ".join(np.array(terms)[order_centroids[1, :20]][::-1]))
-    print(bidi_text)
-    pos_wordcloud = WordCloud(width=600, height=400, font_path='externals/FreeSans/FreeSansBold.ttf').generate(bidi_text)
-    plt.figure(figsize=(10, 8), facecolor='k')
-    plt.imshow(pos_wordcloud, interpolation='bilinear')
-    plt.axis("off")
-    plt.tight_layout(pad=0)
-    plt.show()
+    def plot_WordCloud(cluster_num):
+        bidi_text = get_display(" ".join(np.array(terms)[order_centroids[cluster_num, :15]][::-1]))
+        print(bidi_text)
+        pos_wordcloud = WordCloud(width=600, height=400, font_path='externals/FreeSans/FreeSansBold.ttf').generate(bidi_text)
+        plt.figure(figsize=(10, 8), facecolor='k')
+        plt.imshow(pos_wordcloud, interpolation='bilinear')
+        plt.axis("off")
+        plt.tight_layout(pad=0)
+        plt.show()
 
-    # Create K Clusters of 15
+    for i in range(true_k):
+        plot_WordCloud(i)
+
+    # # Create K Clusters of 15
     # k = range(1, 15)
     # # Instantiate and Fit KMeans of Clusters 1-15
     # kmeans = [KMeans(n_clusters=i) for i in k]

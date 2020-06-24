@@ -9,7 +9,7 @@ PATH = 'Data/Data/clean'
 
 
 def main():
-    #d = read_data(['sentences.pos'], PATH)
+    d = read_data(['sentences.pos', 'sentences.neg'], PATH)
 
     # text normalization (get the clean data)
     # d_norm = tn.text_normalization(d)
@@ -26,12 +26,12 @@ def main():
     # ts.get_text_statistics(d_norm, "normData")
     #
     # # classified data
-    # rf_score = classifiers.get_all_classifiers_evaluations(d_norm)
-    # tn_rf_score = classifiers.get_all_classifiers_evaluations(d_norm)
-    # classifiers.compare_our_result(rf_score, tn_rf_score)
+    rf_score = classifiers.get_all_classifiers_evaluations(d)
+    tn_rf_score = classifiers.get_all_classifiers_evaluations(d_norm)
+    classifiers.compare_our_result(rf_score, tn_rf_score)
 
     # K-means clustering
-    clustering.get_class(d_norm_pos)
+    # clustering.get_class(d_norm_pos)
 
     # # topic modeling
     #     # vectors, vocab = tm.data_processing(d_norm)

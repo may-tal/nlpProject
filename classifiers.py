@@ -190,6 +190,7 @@ def get_all_classifiers_evaluations(data):
     # scores.append(get_classifier_evaluation(prediction_CB, test_df))
 
     plot_roc_curve(test_df, prediction_M, predict_proba_NB, predict_proba_RL, predict_proba_RF)
+    plot_nr_curve(test_df, prediction_M, predict_proba_NB, predict_proba_RL, predict_proba_RF)
     plot_table_scores(scores)
 
     return rf_scores
@@ -250,6 +251,39 @@ def plot_roc_curve(test, pred_m, pred_nb, pred_rl, pred_rf):
     plt.title("ROC CURVE")
     plt.ylabel("true positive rate")
     plt.xlabel("false positive rate")
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.02])
+    plt.legend(loc="lower right")
+    plt.show()
+
+
+def plot_nr_curve(test, pred_m, pred_nb, pred_rl, pred_rf):
+    """
+    this function plot the roc curve
+    """
+    fpr_m, tpr_m, _ = roc_curve(test['label'], pred_m, pos_label=0)
+    roc_auc_m = roc_auc_score(test['label'], pred_m)
+    plt.plot(fpr_m, tpr_m, lw=2, label='Majority- ROC curve (area = %0.2f)' % roc_auc_m)
+
+    fpr_nb, tpr_nb, _ = roc_curve(test['label'], pred_nb, pos_label=0)
+    roc_auc_nb = roc_auc_score(test['label'], pred_nb)
+    plt.plot(fpr_nb, tpr_nb, lw=2, label='Naive bayes- ROC curve (area = %0.2f)' % roc_auc_nb)
+
+    fpr_rl, tpr_rl, _ = roc_curve(test['label'], pred_rl, pos_label=0)
+    roc_auc_rl = roc_auc_score(test['label'], pred_rl)
+    plt.plot(fpr_rl, tpr_rl, lw=2, label='Regression logistic- ROC curve (area = %0.2f)' % roc_auc_rl)
+
+    fpr_rf, tpr_rf, _ = roc_curve(test['label'], pred_rf, pos_label=0)
+    roc_auc_rf = roc_auc_score(test['label'], pred_rf)
+    plt.plot(fpr_rf, tpr_rf, lw=2, label='Random forest- ROC curve (area = %0.2f)' % roc_auc_rf)
+
+    # fpr_cb, tpr_cb, _ = roc_curve(test['label'], pred_cb, pos_label=1)
+    # roc_auc_cb = roc_auc_score(test['label'], pred_cb)
+    # plt.plot(fpr_cb, tpr_cb, lw=2, label='Cat boost- ROC curve (area = %0.2f)' % roc_auc_cb)
+
+    plt.title(" CURVE")
+    plt.ylabel("false negative rate")
+    plt.xlabel("true negative rate")
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.02])
     plt.legend(loc="lower right")

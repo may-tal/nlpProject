@@ -13,11 +13,11 @@ class Evaluator:
     def __init__(self, prediction, test,  b):
         self.test = test
         self.prediction = prediction
-        self.precision_score = precision_score(test['label'], prediction, average="binary", pos_label=1)
-        self.recall_score = recall_score(test['label'], prediction, average="binary", pos_label=1)
-        self.f1_score = f1_score(test['label'], prediction, average="binary", pos_label=1)
+        self.precision_score = precision_score(test['label'], prediction, average="macro", pos_label=1)
+        self.recall_score = recall_score(test['label'], prediction, average="macro", pos_label=1)
+        self.f1_score = f1_score(test['label'], prediction, average="macro", pos_label=1)
         self.confusion_matrix = confusion_matrix(test['label'], prediction)
-        self.fb_score = fbeta_score(test['label'], prediction, b, average="binary", pos_label=1)
+        self.fb_score = fbeta_score(test['label'], prediction, b, average="macro", pos_label=1)
         self.accuracy_score = accuracy_score(test['label'], prediction)
         self.beta = b
 

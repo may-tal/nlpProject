@@ -12,8 +12,8 @@ def K_means_clustering(train_df):
     tfidf_vectorizer = TfidfVectorizer(lowercase=False)
     X = tfidf_vectorizer.fit_transform(train_df.text)
 
-    true_k = 5
-    model = KMeans(n_clusters=true_k, init='k-means++', max_iter=300, n_init=10)
+    true_k = 4
+    model = KMeans(n_clusters=true_k, init='k-means++', max_iter=400, n_init=15)
     model.fit(X)
     y_kmeans = model.predict(X)
 
@@ -23,7 +23,7 @@ def K_means_clustering(train_df):
     terms = tfidf_vectorizer.get_feature_names()
     for i in range(true_k):
         print("Cluster %d:" % i),
-        for ind in order_centroids[i, :5]:
+        for ind in order_centroids[i, :4]:
             print(' %s' % terms[ind]),
 
     print("\n")
@@ -39,7 +39,7 @@ def K_means_clustering(train_df):
     print(prediction)
 
 
-    bidi_text = get_display(" ".join(np.array(terms)[order_centroids[1, :5]][::-1]))
+    bidi_text = get_display(" ".join(np.array(terms)[order_centroids[1, :20]][::-1]))
     print(bidi_text)
     pos_wordcloud = WordCloud(width=600, height=400, font_path='externals/FreeSans/FreeSansBold.ttf').generate(bidi_text)
     plt.figure(figsize=(10, 8), facecolor='k')

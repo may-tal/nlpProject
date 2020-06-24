@@ -34,16 +34,16 @@ def main():
     clustering.get_class(d_norm_pos)
 
     # # topic modeling
-    # vectors, vocab = tm.data_processing(d_norm)
-    #
-    # # show topics - SVD
-    # u, s, vh = tm.svd(vectors)
-    # print(tm.get_topics(vh[:6], vocab))
-    # tm.print_messages_by_topic(d_norm, u)
-    #
-    # # show topic - NMF
-    # w1, h1 = tm.nmf(vectors)
-    # print(tm.get_topics(h1, vocab))
+    #     # vectors, vocab = tm.data_processing(d_norm)
+    #     #
+    #     # # show topics - SVD
+    #     # u, s, vh = tm.svd(vectors)
+    #     # print(tm.get_topics(vh[:6], vocab))
+    #     # tm.print_messages_by_topic(d_norm, u)
+    #     #
+    #     # # show topic - NMF
+    #     # w1, h1 = tm.nmf(vectors)
+    #     # print(tm.get_topics(h1, vocab))
 
     # vectors, vocab = tm.data_processing(d_norm)
     # u, s, vh = tm.svd(vectors)

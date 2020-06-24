@@ -14,11 +14,11 @@ def text_normalization(data):
     data = remove_duplicates_characters(data)
     data = translate_slang(data)
     data = stemmer_and_lemmatizer(data)
+    data = get_text_non_stopwords(data)
     return data
 
 
 def stemmer_and_lemmatizer(data):
-
     for idx, row in data.iterrows():
         yap_df = ts.get_yap_analysis(row["text"])
         lemme = yap_df["lemma"].values

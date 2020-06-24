@@ -2,11 +2,8 @@ import textStatistics as ts
 from data import *
 import classifiers
 import textNormalization as tn
-<<<<<<< Updated upstream
 import clustering
-=======
 import topicModeling as tm
->>>>>>> Stashed changes
 
 PATH = 'Data/Data/clean'
 
@@ -33,9 +30,18 @@ def main():
     # K-means clustering
     clustering.get_class(d_norm)
 
+    # topic modeling
     vectors, vocab = tm.data_processing(d_norm)
+
+    # show topics - SVD
     u, s, vh = tm.svd(vectors)
-    print(tm.show_topics(vh[:6], vocab))
+    print(tm.get_topics(vh[:6], vocab))
+    tm.print_messages_by_topic(d_norm, u)
+
+    # show topic - NMF
+    w1, h1 = tm.nmf(vectors)
+    print(tm.get_topics(h1, vocab))
+
 
 
 if __name__ == "__main__":

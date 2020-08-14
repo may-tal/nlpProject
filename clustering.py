@@ -6,13 +6,14 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from bidi.algorithm import get_display
 import numpy as np
+import feature_extraction
 
 
 def K_means_clustering(train_df):
     tfidf_vectorizer = TfidfVectorizer(lowercase=False)
     X = tfidf_vectorizer.fit_transform(train_df.text)
 
-    true_k = 6
+    true_k = 3
     model = KMeans(n_clusters=true_k, init='k-means++', max_iter=400, n_init=15)
     model.fit(X)
     y_kmeans = model.predict(X)
@@ -65,5 +66,5 @@ def K_means_clustering(train_df):
     # plt.show()
 
 def get_class(data):
-    train_df, test_df = clf.prepare_data_for_classify(data)
+    x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data)
     K_means_clustering(train_df)

@@ -11,7 +11,8 @@ import numpy as np
 from sklearn.metrics import roc_curve, roc_auc_score
 import feature_extraction
 import feature_selection
-
+import lightgbm as lgb
+import xgboost as xgb
 
 def majority_classifier(test_df):
     return len(test_df) * [0]
@@ -78,7 +79,7 @@ def random_forest_classifier(x_train_tf, train_df, x_test_tfidf):
     return predictions, predict_proba, random_forest
 
 
-def cat_boost_classifier(x_train_tf, train_df, x_test_tfidf):
+def catboost_classifier(x_train_tf, train_df, x_test_tfidf):
     """
     classify data by cat boost classifier
     :param x_train_tf: training data represented as counted vector
@@ -86,14 +87,43 @@ def cat_boost_classifier(x_train_tf, train_df, x_test_tfidf):
     :param x_test_tfidf: test data represented as counted vector
     :return: predicted labels
     """
-    cat_features = [0, 1]
-    model = CatBoostClassifier(iterations=1)
-    # model.fit(x_train_tf, train_df.label, cat_features)
+    model = CatBoostClassifier(iterations=20)
+    x_train_tf = pd.DataFrame(x_train_tf)
+    x_test_tfidf = pd.DataFrame(x_test_tfidf)
     model.fit(x_train_tf, train_df.label)
     predictions = model.predict(x_test_tfidf)
-    #TODO- check why predict proba is 2dim array 
     predict_proba = model.predict_proba(x_test_tfidf)
     return predictions, predict_proba
+
+
+def lightgbm_classifier(x_train_tf, train_df, x_test_tfidf):
+    """
+    classify data by lightgbm classifier
+    :param x_train_tf: training data represented as counted vector
+    :param train_df: the training data
+    :param x_test_tfidf: test data represented as counted vector
+    :return: predicted labels
+    """
+    model = lgb.LGBMClassifier()
+    model.fit(x_train_tf, train_df.label)
+    predictions = model.predict(x_test_tfidf)
+    predict_proba = model.predict_proba(x_test_tfidf)[:, 1]
+    return predictions, predict_proba
+
+
+def xgboost_classifier(x_train_tf, train_df, x_test_tfidf):
+    """
+    classify data by xgboost classifier
+    :param x_train_tf: training data represented as counted vector
+    :param train_df: the training data
+    :param x_test_tfidf: test data represented as counted vector
+    :return: predicted labels
+    """
+    model = xgb.XGBRFClassifier()
+    model.fit(x_train_tf, train_df.label)
+    predictions = model.predict(x_test_tfidf)
+    predictions_proba = model.predict_proba(x_test_tfidf)[:, 1]
+    return predictions, predictions_proba
 
 
 def get_all_classifiers_evaluations(data):
@@ -104,25 +134,25 @@ def get_all_classifiers_evaluations(data):
 
     scores = []
 
-    # prediction_M = majority_classifier(test_df)
+    prediction_M = majority_classifier(test_df)
     # print("==========majority_classifier=============")
-    # scores.append(get_classifier_evaluation(prediction_M, test_df, 'majority classifier'))
+    scores.append(get_classifier_evaluation(prediction_M, test_df, 'majority classifier'))
     #
-    # prediction_NB, predict_proba_NB = multinomial_naive_bayes_classifier(x_train_tf, train_df, x_test_tfidf)
+    prediction_NB, predict_proba_NB = multinomial_naive_bayes_classifier(x_train_tf, train_df, x_test_tfidf)
     # print("\n==========multinomial_naive_bayes_classifier=============")
-    # scores.append(get_classifier_evaluation(prediction_NB, test_df, 'naive bayes'))
+    scores.append(get_classifier_evaluation(prediction_NB, test_df, 'naive bayes'))
     #
     prediction_LR, predict_proba_LR, clf, lr_model = logistic_regression_classifier(x_train_tf, train_df, x_test_tfidf)
-    print("\n==========logistic_regression_classifier=============")
+    # print("\n==========logistic_regression_classifier=============")
     scores.append(get_classifier_evaluation(prediction_LR, test_df, 'logistic regression'))
-    print("before selection: " + str(lr_model.score(x_test_tfidf, test_df.label)))
-    get_strongest_words(0, clf, train_df)
-
-    x_train_sel, selector = feature_selection.select_from_model(lr_model, x_train_tf, train_df)
-    x_test_sel = selector.transform(x_test_tfidf)
-
-    lr_new_model = LogisticRegression().fit(x_train_sel, train_df.label)
-    print("after selection: " + str(lr_new_model.score(x_test_sel, test_df.label)))
+    # print("before selection: " + str(lr_model.score(x_test_tfidf, test_df.label)))
+    # get_strongest_words(0, clf, train_df)
+    #
+    # x_train_sel, selector = feature_selection.select_from_model(lr_model, x_train_tf, train_df)
+    # x_test_sel = selector.transform(x_test_tfidf)
+    #
+    # lr_new_model = LogisticRegression().fit(x_train_sel, train_df.label)
+    # print("after selection: " + str(lr_new_model.score(x_test_sel, test_df.label)))
     #
     # x_train_sel_2, selector2= feature_selection.removing_features_with_low_variance(x_train_tf)
     # x_test_sel2 = selector2.transform(x_test_tfidf)
@@ -134,9 +164,9 @@ def get_all_classifiers_evaluations(data):
     # lr_new_model_3 = LogisticRegression().fit(x_train_sel_3, train_df.label)
     # print("after selection: " + str(lr_new_model_3.score(x_test_sel3, test_df.label)))
 
-
-    # prediction_RF, predict_proba_RF, rf_model = random_forest_classifier(x_train_tf, train_df, x_test_tfidf)
+    prediction_RF, predict_proba_RF, rf_model = random_forest_classifier(x_train_tf, train_df, x_test_tfidf)
     # print("\n==========random_forest_classifier=============")
+    scores.append(get_classifier_evaluation(prediction_RF, test_df, 'random forest'))
     # rf_scores = get_classifier_evaluation(prediction_RF, test_df, 'random forest')
     # scores.append(rf_scores)
     # print("before selection: " + str(rf_model.score(x_test_tfidf, test_df.label)))
@@ -147,14 +177,20 @@ def get_all_classifiers_evaluations(data):
     # rf_new_model = RandomForestClassifier().fit(x_train_sel, train_df.label)
     # print("after selection: " + str(rf_new_model.score(x_test_sel, test_df.label)))
 
-    # prediction_CB, predict_proba_CB = cat_boost_classifier(x_train_tf, train_df, x_test_tfidf)
+    # prediction_CB, predict_proba_CB = catboost_classifier(x_train_tf, train_df, x_test_tfidf)
     # scores.append(get_classifier_evaluation(prediction_CB, test_df))
 
-    # plot_roc_curve(test_df, prediction_M, predict_proba_NB, predict_proba_LR, predict_proba_RF)
-    # plot_nr_curve(test_df, prediction_M, predict_proba_NB, predict_proba_LR, predict_proba_RF)
+    prediction_LGB, prediction_proba_LGB = lightgbm_classifier(x_train_tf, train_df, x_test_tfidf)
+    scores.append(get_classifier_evaluation(prediction_LGB, test_df, 'lightgbm'))
+
+    prediction_XGB, prediction_proba_XGB = xgboost_classifier(x_train_tf, train_df, x_test_tfidf)
+    scores.append(get_classifier_evaluation(prediction_XGB, test_df, 'xgboost'))
+
+    plot_roc_curve(test_df, prediction_M, predict_proba_NB, predict_proba_LR, predict_proba_RF, prediction_proba_LGB, prediction_proba_XGB)
+    plot_nr_curve(test_df, prediction_M, predict_proba_NB, predict_proba_LR, predict_proba_RF, prediction_proba_LGB, prediction_proba_XGB)
     plot_table_scores(scores)
 
-    # return rf_scores
+    return scores
 
 
 def plot_table_scores(scores):
@@ -169,8 +205,7 @@ def plot_table_scores(scores):
     vals = np.around(df.values, 2)
     norm = plt.Normalize(vals.min() - 1, vals.max() + 1)
     colours = plt.cm.hot(norm(vals))
-    #rows_labels = ['majority', 'naive bayes', 'regression logistic', 'random forest']
-    rows_labels = ['rf']
+    rows_labels = ['majority', 'naive bayes', 'regression logistic', 'random forest', 'lightgbm', 'xgboost ']
     ax.table(cellText=df.values, colLabels=df.columns, loc='center', cellColours=colours, rowLabels=rows_labels)
     fig.tight_layout()
     plt.savefig("scores.png")
@@ -186,30 +221,25 @@ def get_classifier_evaluation(prediction, test, classifier_name, b=2):
     return evaluation.get_evaluation(classifier_name)
 
 
-def plot_roc_curve(test, pred_m, pred_nb, pred_rl, pred_rf):
+def helper_plot_curve(test, pred, pos_label, classifier_name):
     """
-    this function plot the roc curve
+    helper function for plot_curve
     """
-    fpr_m, tpr_m, _ = roc_curve(test['label'], pred_m, pos_label=1)
-    roc_auc_m = roc_auc_score(test['label'], pred_m)
-    plt.plot(fpr_m, tpr_m, lw=2, label='Majority- ROC curve (area = %0.2f)' % roc_auc_m)
+    fpr, tpr, _ = roc_curve(test['label'], pred, pos_label=pos_label)
+    roc_auc = roc_auc_score(test['label'], pred)
+    plt.plot(fpr, tpr, lw=2, label=classifier_name+'- ROC curve (area = %0.2f)' % roc_auc)
 
-    fpr_nb, tpr_nb, _ = roc_curve(test['label'], pred_nb, pos_label=1)
-    roc_auc_nb = roc_auc_score(test['label'], pred_nb)
-    plt.plot(fpr_nb, tpr_nb, lw=2, label='Naive bayes- ROC curve (area = %0.2f)' % roc_auc_nb)
 
-    fpr_rl, tpr_rl, _ = roc_curve(test['label'], pred_rl, pos_label=1)
-    roc_auc_rl = roc_auc_score(test['label'], pred_rl)
-    plt.plot(fpr_rl, tpr_rl, lw=2, label='Regression logistic- ROC curve (area = %0.2f)' % roc_auc_rl)
-
-    fpr_rf, tpr_rf, _ = roc_curve(test['label'], pred_rf, pos_label=1)
-    roc_auc_rf = roc_auc_score(test['label'], pred_rf)
-    plt.plot(fpr_rf, tpr_rf, lw=2, label='Random forest- ROC curve (area = %0.2f)' % roc_auc_rf)
-
-    # fpr_cb, tpr_cb, _ = roc_curve(test['label'], pred_cb, pos_label=1)
-    # roc_auc_cb = roc_auc_score(test['label'], pred_cb)
-    # plt.plot(fpr_cb, tpr_cb, lw=2, label='Cat boost- ROC curve (area = %0.2f)' % roc_auc_cb)
-
+def plot_curve(test, pred_m, pred_nb, pred_rl, pred_rf, pred_lgb, pred_xgb, pos_label):
+    """
+    this function plot the curve
+    """
+    helper_plot_curve(test, pred_m, pos_label, 'Majority')
+    helper_plot_curve(test, pred_nb, pos_label, 'Naive bayes')
+    helper_plot_curve(test, pred_rl, pos_label, 'Regression logistic')
+    helper_plot_curve(test, pred_rf, pos_label, 'Random forest')
+    helper_plot_curve(test, pred_lgb, pos_label, 'Lightgbm')
+    helper_plot_curve(test, pred_xgb, pos_label, 'Xgboost')
     plt.title("ROC CURVE")
     plt.ylabel("true positive rate")
     plt.xlabel("false positive rate")
@@ -219,37 +249,18 @@ def plot_roc_curve(test, pred_m, pred_nb, pred_rl, pred_rf):
     plt.show()
 
 
-def plot_nr_curve(test, pred_m, pred_nb, pred_rl, pred_rf):
+def plot_roc_curve(test, pred_m, pred_nb, pred_rl, pred_rf, pred_lgb, pred_xgb):
     """
     this function plot the roc curve
     """
-    fpr_m, tpr_m, _ = roc_curve(test['label'], pred_m, pos_label=0)
-    roc_auc_m = roc_auc_score(test['label'], pred_m)
-    plt.plot(fpr_m, tpr_m, lw=2, label='Majority- ROC curve (area = %0.2f)' % roc_auc_m)
+    plot_curve(test, pred_m, pred_nb, pred_rl, pred_rf, pred_lgb, pred_xgb, 1)
 
-    fpr_nb, tpr_nb, _ = roc_curve(test['label'], pred_nb, pos_label=0)
-    roc_auc_nb = roc_auc_score(test['label'], pred_nb)
-    plt.plot(fpr_nb, tpr_nb, lw=2, label='Naive bayes- ROC curve (area = %0.2f)' % roc_auc_nb)
 
-    fpr_rl, tpr_rl, _ = roc_curve(test['label'], pred_rl, pos_label=0)
-    roc_auc_rl = roc_auc_score(test['label'], pred_rl)
-    plt.plot(fpr_rl, tpr_rl, lw=2, label='Logistic regression - ROC curve (area = %0.2f)' % roc_auc_rl)
-
-    fpr_rf, tpr_rf, _ = roc_curve(test['label'], pred_rf, pos_label=0)
-    roc_auc_rf = roc_auc_score(test['label'], pred_rf)
-    plt.plot(fpr_rf, tpr_rf, lw=2, label='Random forest- ROC curve (area = %0.2f)' % roc_auc_rf)
-
-    # fpr_cb, tpr_cb, _ = roc_curve(test['label'], pred_cb, pos_label=1)
-    # roc_auc_cb = roc_auc_score(test['label'], pred_cb)
-    # plt.plot(fpr_cb, tpr_cb, lw=2, label='Cat boost- ROC curve (area = %0.2f)' % roc_auc_cb)
-
-    plt.title(" CURVE")
-    plt.ylabel("false negative rate")
-    plt.xlabel("true negative rate")
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.02])
-    plt.legend(loc="lower right")
-    plt.show()
+def plot_nr_curve(test, pred_m, pred_nb, pred_rl, pred_rf, pred_lgb, pred_xgb):
+    """
+    this function plot the nr curve
+    """
+    plot_curve(test, pred_m, pred_nb, pred_rl, pred_rf, pred_lgb, pred_xgb, 0)
 
 
 def compare_our_result(rf, tn_rf):

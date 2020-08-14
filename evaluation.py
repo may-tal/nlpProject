@@ -65,11 +65,11 @@ class Evaluator:
         error_count = 0
         for i, row in self.test.iterrows():
             if row['label'] != self.prediction[count]:
-                # print("--------------------------------")
-                # print("text: " + row['text'])
-                # print("true label: " + str(row['label']))
-                # print("pred label: " + str(self.prediction[count]))
-                # print("--------------------------------")
+                print("--------------------------------")
+                print("text: " + row['text'])
+                print("true label: " + str(row['label']))
+                print("pred label: " + str(self.prediction[count]))
+                print("--------------------------------")
                 error_count += 1
             count += 1
         print("found " + str(error_count) + " errors")

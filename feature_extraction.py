@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.sparse import csr_matrix
 
 
 def split_to_train_and_test(data_df, random_state=None):
@@ -88,10 +89,53 @@ def get_bow_tfidf(data):
     data_exploration(train_df)
     x_train_counts, x_test_counts = bag_of_words(train_df, test_df)
     x_train_tf, x_test_tfidf = tf_idf(x_train_counts, x_test_counts)
+    x_train_tf = add_feature_from_sentiment_lexicon(train_df, x_train_tf)
+    x_test_tfidf = add_feature_from_sentiment_lexicon(test_df, x_test_tfidf)
     return x_train_tf, x_test_tfidf, train_df, test_df
 
-def add_feature_from_sentiment_lexicon():
-    pass
+
+def _convert_txt_file_to_set(path):
+    file = open(path, 'r', encoding='utf-8')
+    s = set()
+    for line in file:
+        s.add(line.replace("\n", ""))
+    return s
+
+def add_feature_from_sentiment_lexicon(data, features):
+    # neg_words = pd.read_csv('sentiment_lexicon/negative_words_he.txt')
+    neg_words = _convert_txt_file_to_set('sentiment_lexicon/negative_words_he.txt')
+    pos_words = _convert_txt_file_to_set('sentiment_lexicon/positive_words_he.txt')
+
+    # pos_words = pd.read_csv('sentiment_lexicon/positive_words_he.txt')
+    neg_feature = []
+    pos_feature = []
+
+    for idx, message in data.iterrows():
+        count_neg = 0
+        count_pos = 0
+        for word in message[0].split():
+            if word in neg_words:
+                count_neg += 1
+            if word in pos_words:
+                count_pos += 1
+
+        if len(message[0].split()) == 0:
+            mass_len = 1
+        else:
+            mass_len = len(message[0].split())
+        pos_feature.append(count_pos/mass_len)
+        neg_feature.append(count_neg/mass_len)
+
+    # data["pos_words"] = pos_feature
+    # data["neg_words"] = neg_feature
+    print(pos_feature)
+    print(neg_feature)
+    dense_matrix = features.todense()
+    dense_matrix = np.insert(dense_matrix, dense_matrix.shape[1], pos_feature, axis=1)
+    dense_matrix = np.insert(dense_matrix, dense_matrix.shape[1], neg_feature, axis=1)
+    train_matrix = csr_matrix(dense_matrix)
+
+    return train_matrix
 
 
 def word2vec_model():

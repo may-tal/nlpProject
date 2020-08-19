@@ -84,13 +84,17 @@ def tf_idf(x_train_counts, x_test_counts):
     return x_train_tf, x_test_tfidf
 
 
-def get_bow_tfidf(data):
+def get_bow_tfidf(data, flag):
     train_df, test_df = split_to_train_and_test(data)
     data_exploration(train_df)
-    x_train_counts, x_test_counts = bag_of_words(train_df, test_df)
+    if flag:  # bag of words
+        x_train_counts, x_test_counts = bag_of_words(train_df, test_df)
+    else:  # bow character level n grams
+        x_train_counts, x_test_counts = bow_character_level_n_grams(train_df, test_df)
     x_train_tf, x_test_tfidf = tf_idf(x_train_counts, x_test_counts)
-    x_train_tf = add_feature_from_sentiment_lexicon(train_df, x_train_tf)
-    x_test_tfidf = add_feature_from_sentiment_lexicon(test_df, x_test_tfidf)
+    if flag: # bag of words
+        x_train_tf = add_feature_from_sentiment_lexicon(train_df, x_train_tf)
+        x_test_tfidf = add_feature_from_sentiment_lexicon(test_df, x_test_tfidf)
     return x_train_tf, x_test_tfidf, train_df, test_df
 
 

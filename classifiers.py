@@ -41,8 +41,6 @@ def logistic_regression_classifier(x_train_tf, train_df, x_test_tfidf):
     :return: predicted labels
     """
     logistic_regression = LogisticRegression()
-    # x_train_sel, selector = feature_selection.select_from_model(logistic_regression, x_train_tf, train_df)
-    # x_test_sel = selector.transform(x_test_tfidf)
     clf = logistic_regression.fit(x_train_tf, train_df.label)
     predictions = logistic_regression.predict(x_test_tfidf)
     predict_proba = logistic_regression.predict_proba(x_test_tfidf)[:, 1]
@@ -126,28 +124,57 @@ def xgboost_classifier(x_train_tf, train_df, x_test_tfidf):
     return predictions, predictions_proba
 
 
+def get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, label):
+    scores = []
+
+    prediction_M = majority_classifier(test_df)
+    scores.append(get_classifier_evaluation(prediction_M, test_df, 'majority classifier'))
+
+    prediction_NB, predict_proba_NB = multinomial_naive_bayes_classifier(x_train_tf, train_df, x_test_tfidf)
+    scores.append(get_classifier_evaluation(prediction_NB, test_df, 'naive bayes'))
+
+    prediction_LR, predict_proba_LR, clf, lr_model = logistic_regression_classifier(x_train_tf, train_df, x_test_tfidf)
+    scores.append(get_classifier_evaluation(prediction_LR, test_df, 'logistic regression'))
+
+    prediction_RF, predict_proba_RF, rf_model = random_forest_classifier(x_train_tf, train_df, x_test_tfidf)
+    scores.append(get_classifier_evaluation(prediction_RF, test_df, 'random forest'))
+
+    prediction_LGB, prediction_proba_LGB = lightgbm_classifier(x_train_tf, train_df, x_test_tfidf)
+    scores.append(get_classifier_evaluation(prediction_LGB, test_df, 'lightgbm'))
+
+    prediction_XGB, prediction_proba_XGB = xgboost_classifier(x_train_tf, train_df, x_test_tfidf)
+    scores.append(get_classifier_evaluation(prediction_XGB, test_df, 'xgboost'))
+
+    # plot_roc_curve(test_df, prediction_M, predict_proba_NB, predict_proba_LR, predict_proba_RF, prediction_proba_LGB, prediction_proba_XGB)
+    # plot_nr_curve(test_df, prediction_M, predict_proba_NB, predict_proba_LR, predict_proba_RF, prediction_proba_LGB, prediction_proba_XGB)
+    plot_table_scores(scores, label)
+
+    return scores
+
+
+def plot_scores_by_feature_extraction(data, title):
+    # bag of words
+    x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data, True)
+    scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, "(bag of words) " + title)
+
+    # bow character level n grams
+    x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data, False)
+    scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, "(bow character level n grams) " + title)
+
+    # word2vec
+    x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_word2vec(data)
+    scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, "(word2vec) " + title)
+
+
 def get_all_classifiers_evaluations(data):
     """
     this function print and plot for each classifier his evaluation
     """
-    x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data)
+    # bag of words
+    x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data, True)
+    # plot classifier scores, roc curve, nr curve and get all classifiers scores
+    scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, "bag of words")
 
-    scores = []
-
-    prediction_M = majority_classifier(test_df)
-    # print("==========majority_classifier=============")
-    scores.append(get_classifier_evaluation(prediction_M, test_df, 'majority classifier'))
-    #
-    prediction_NB, predict_proba_NB = multinomial_naive_bayes_classifier(x_train_tf, train_df, x_test_tfidf)
-    # print("\n==========multinomial_naive_bayes_classifier=============")
-    scores.append(get_classifier_evaluation(prediction_NB, test_df, 'naive bayes'))
-    #
-    prediction_LR, predict_proba_LR, clf, lr_model = logistic_regression_classifier(x_train_tf, train_df, x_test_tfidf)
-    # print("\n==========logistic_regression_classifier=============")
-    scores.append(get_classifier_evaluation(prediction_LR, test_df, 'logistic regression'))
-    # print("before selection: " + str(lr_model.score(x_test_tfidf, test_df.label)))
-    # get_strongest_words(0, clf, train_df)
-    #
     # x_train_sel, selector = feature_selection.select_from_model(lr_model, x_train_tf, train_df)
     # x_test_sel = selector.transform(x_test_tfidf)
     #
@@ -164,9 +191,6 @@ def get_all_classifiers_evaluations(data):
     # lr_new_model_3 = LogisticRegression().fit(x_train_sel_3, train_df.label)
     # print("after selection: " + str(lr_new_model_3.score(x_test_sel3, test_df.label)))
 
-    prediction_RF, predict_proba_RF, rf_model = random_forest_classifier(x_train_tf, train_df, x_test_tfidf)
-    # print("\n==========random_forest_classifier=============")
-    scores.append(get_classifier_evaluation(prediction_RF, test_df, 'random forest'))
     # rf_scores = get_classifier_evaluation(prediction_RF, test_df, 'random forest')
     # scores.append(rf_scores)
     # print("before selection: " + str(rf_model.score(x_test_tfidf, test_df.label)))
@@ -177,23 +201,10 @@ def get_all_classifiers_evaluations(data):
     # rf_new_model = RandomForestClassifier().fit(x_train_sel, train_df.label)
     # print("after selection: " + str(rf_new_model.score(x_test_sel, test_df.label)))
 
-    # prediction_CB, predict_proba_CB = catboost_classifier(x_train_tf, train_df, x_test_tfidf)
-    # scores.append(get_classifier_evaluation(prediction_CB, test_df))
-
-    prediction_LGB, prediction_proba_LGB = lightgbm_classifier(x_train_tf, train_df, x_test_tfidf)
-    scores.append(get_classifier_evaluation(prediction_LGB, test_df, 'lightgbm'))
-
-    prediction_XGB, prediction_proba_XGB = xgboost_classifier(x_train_tf, train_df, x_test_tfidf)
-    scores.append(get_classifier_evaluation(prediction_XGB, test_df, 'xgboost'))
-
-    plot_roc_curve(test_df, prediction_M, predict_proba_NB, predict_proba_LR, predict_proba_RF, prediction_proba_LGB, prediction_proba_XGB)
-    plot_nr_curve(test_df, prediction_M, predict_proba_NB, predict_proba_LR, predict_proba_RF, prediction_proba_LGB, prediction_proba_XGB)
-    plot_table_scores(scores)
-
     return scores
 
 
-def plot_table_scores(scores):
+def plot_table_scores(scores, title):
     """
     this function plot the scores of each classifier (recall, precision,...)
     """
@@ -209,6 +220,7 @@ def plot_table_scores(scores):
     ax.table(cellText=df.values, colLabels=df.columns, loc='center', cellColours=colours, rowLabels=rows_labels)
     fig.tight_layout()
     plt.savefig("scores.png")
+    plt.title("classifier_evaluation " + title)
     plt.show()
 
 

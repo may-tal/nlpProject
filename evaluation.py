@@ -80,11 +80,14 @@ class Evaluator:
         """
         scores = [self.get_recall_score(), self.get_precision_score(), self.get_accuracy_score(), self.get_f1_score(),
                   self.get_fb_score()]
-        self.show_error()
-        self.plot_confusion_matrix(title)
+        # self.show_error()
+        # self.plot_confusion_matrix(title)
         return scores
 
     def plot_confusion_matrix(self, title):
+        """
+        this function plot the confusion matrix
+        """
         class_names = [0, 1]
         fig, ax = plt.subplots()
         tick_marks = np.arange(len(class_names))

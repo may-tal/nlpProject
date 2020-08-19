@@ -1,6 +1,6 @@
 import textStatistics as ts
-import pandas as pd
 import re
+import string
 
 PATH = 'Data/Data/clean'
 SLANG_DICT = {"אחשלי": "אח שלי", "אמשך": "אמא שלך", "אבשך": "אבא שלך", "חיימשלי": "חיים שלי", "אמאשלך": "אמא שלך",
@@ -10,13 +10,45 @@ SLANG_DICT = {"אחשלי": "אח שלי", "אמשך": "אמא שלך", "אבש�
               "אנילא": "אני לא", "אמאשך": "אמא שלך", "אבאשך": "אבא שלך"}
 
 
+def get_clean_data(data):
+    """
+    this function return the clean data
+    """
+    data = get_text_non_stopwords(data)
+    data = remove_punctuation(data)
+    return data
+
+
 def text_normalization(data):
-    data = remove_duplicates_characters(data)
+    """
+    this function return the data after text normalization
+    """
+    clean_data = get_clean_data(data)
+    data = remove_duplicates_characters(clean_data)
     data = translate_slang(data)
     data = stemmer_and_lemmatizer(data)
+    data = fix_yap(data)
     data = get_text_non_stopwords(data)
     return data
 
+
+def text_normaliztion_without_yap(data):
+    """
+    this function return the data after text normalization without YAP
+    """
+    clean_data = get_clean_data(data)
+    data = remove_duplicates_characters(clean_data)
+    data = translate_slang(data)
+    data = get_text_non_stopwords(data)
+    return data
+
+def get_data_without_punctuation_with_yap(data):
+    """
+    this function return the data without punctuation after yap
+    """
+    data = remove_punctuation(data)
+    data = stemmer_and_lemmatizer(data)
+    return data
 
 def stemmer_and_lemmatizer(data):
     for idx, row in data.iterrows():
@@ -68,8 +100,8 @@ def remove_duplicates_characters(data):
                     no_dup_word = "בנזונה"
                 if re.match(r'ב+ת+ז+ו+נ+ה+', no_dup_word):
                     no_dup_word = "בנזונה"
-            no_dup_word = re.sub("\\?+", "?", word)
-            no_dup_word = re.sub("\\.+", "?", word)
+            no_dup_word = re.sub("\\?+", "?", no_dup_word)
+            no_dup_word = re.sub("\\.+", "?", no_dup_word)
             new_row += no_dup_word + " "
         new_row = new_row[:-1]
         new_row += "\n"
@@ -146,3 +178,17 @@ def get_hebrew_stopwords():
         res = [l.strip() for l in lines]
     res.extend([",", "."])
     return res
+
+
+def remove_punctuation(data):
+    """
+    this function return the text without punctuation
+    """
+    for idx, row in data.iterrows():
+        new_row = row['text']
+        for punctuation in string.punctuation:
+            new_row = new_row.replace(punctuation, '')
+        data.iloc[[idx], [0]] = new_row
+    return data
+
+

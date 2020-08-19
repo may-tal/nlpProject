@@ -162,6 +162,9 @@ def get_yap_analysis(text):
 
 
 def get_text_statistics(text, text_name):
+    """
+    this function return the text statistics
+    """
     plot_top_20_common_words(text, "commonWords_" + text_name)
     plot_top_non_stop_words_barchart(text, "commonNonStopwords_" + text_name)
     plot_top_20_bigrams_words(text, "commonBigrams_" + text_name)

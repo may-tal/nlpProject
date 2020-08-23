@@ -1,7 +1,5 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
-from sklearn.metrics import adjusted_rand_score
-import classifiers as clf
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from bidi.algorithm import get_display
@@ -10,6 +8,10 @@ import feature_extraction
 
 
 def K_means_clustering(train_df):
+    """
+    K-means clustering algorithm with k=3 for cluster tha messages to their violence type
+    :param train_df: data to cluster
+    """
     tfidf_vectorizer = TfidfVectorizer(lowercase=False)
     X = tfidf_vectorizer.fit_transform(train_df.text)
 
@@ -65,6 +67,7 @@ def K_means_clustering(train_df):
     # plt.title('Elbow Curve')
     # plt.show()
 
+
 def get_class(data):
-    x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data)
+    x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data, False)
     K_means_clustering(train_df)

@@ -74,14 +74,13 @@ class Evaluator:
             count += 1
         print("found " + str(error_count) + " errors")
 
-    def get_evaluation(self, title):
+    def get_evaluation(self, title, data_name):
         """
         this function return all the scores, print the errors and plot the roc curve
         """
         scores = [self.get_recall_score(), self.get_precision_score(), self.get_accuracy_score(), self.get_f1_score(),
                   self.get_fb_score()]
-        # self.show_error()
-        # self.plot_confusion_matrix(title)
+        # self.plot_confusion_matrix(title + "\n" + data_name)
         return scores
 
     def plot_confusion_matrix(self, title):

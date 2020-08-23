@@ -4,6 +4,13 @@ import matplotlib.pyplot as plt
 
 
 def read_data(files_name, path):
+    """
+    read the data files (pos and neg) to one file with binary labels when positive is 0 and negative is 1.
+    The function also plot data's pie graph.
+    :param files_name: data file's name
+    :param path: path to tne data directory
+    :return:
+    """
     lst = []
     len_pos = 0
     len_neg = 0
@@ -21,7 +28,6 @@ def read_data(files_name, path):
                 cur_df = pd.DataFrame(cur_dict)
                 lst.append(cur_df)
     total_df = pd.concat(lst)
-    # return total_df
     out_path = path + "data.csv"
     total_df.to_csv(out_path, index=False, encoding='utf-8')
 
@@ -38,6 +44,3 @@ def read_data(files_name, path):
 
     with open(out_path, 'rb') as data:
         return pd.read_csv(data)
-
-
-

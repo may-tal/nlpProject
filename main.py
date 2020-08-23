@@ -1,32 +1,30 @@
-import textStatistics as ts
+import text_statistics as ts
 from data import *
 import classifiers
-import textNormalization as tn
+import text_normalization as tn
 import clustering
-import topicModeling as tm
+import topic_modeling as tm
+import data
 
-PATH = 'Data/Data/clean'
-
+PATH = 'Data'
+BAG_OF_WORDS = 1
+WORDS_2_VEC = 2
+BOW_CHAR = 3
 
 def main():
-    orig_data = pd.read_csv('orig_data.csv')
-    yap_data = tn.remove_punctuation(orig_data)
-    yap_data = tn.stemmer_and_lemmatizer(yap_data)
-    yap_data.to_csv('yap_data.csv', index=False, encoding='utf-8')
+    orig_data, clean_data, clean_and_normalization_data_without_yap, yap_no_punct, normalization_data = get_data_as_csv()
+    clean_data = data_to_csv()
 
-    # orig_data, clean_data, clean_and_normalization_data_without_yap, normalization_data = get_data_as_csv()
-    #
-    # classifiers.plot_scores_by_feature_extraction(orig_data, "orig data")
-    # classifiers.plot_scores_by_feature_extraction(clean_data, "clean data")
-    # classifiers.plot_scores_by_feature_extraction(clean_and_normalization_data_without_yap, "clean + norm - yap")
-    # classifiers.plot_scores_by_feature_extraction(normalization_data, "norm data")
+    # plot the scores of the best data
+    # clean_data_scores = classifiers.plot_scores_by_feature_extraction(clean_data, "clean data", BOW_CHAR, False)
+    # norm_data_scores = classifiers.plot_scores_by_feature_extraction(normalization_data, "normalization data", BAG_OF_WORDS, False)
 
+    # feature selection
+    clean_data_scores = classifiers.plot_scores_by_feature_extraction(clean_data, "clean data", BOW_CHAR, True)
+    norm_data_scores = classifiers.plot_scores_by_feature_extraction(normalization_data, "normalization data", BAG_OF_WORDS, True)
 
     # normalization_data_pos = normalization_data[normalization_data['label'] == 1]
-    #
-    # # text statistics
-    # ts.get_text_statistics(normalization_data, "data")
-    # ts.get_text_statistics(normalization_data, "normData")
+
     #
     # classified data
     # scores = classifiers.get_all_classifiers_evaluations(orig_data)
@@ -65,22 +63,27 @@ def data_to_csv():
 
     # data_without_punctuation_with_yap = tn.get_data_without_punctuation_with_yap(orig_data)
     # data_without_punctuation_with_yap.to_csv('data_without_punctuation_with_yap.csv', index=False, encoding='utf-8')
-
-    clean_and_normalization_data_without_yap = tn.text_normaliztion_without_yap(orig_data)
-    clean_and_normalization_data_without_yap.to_csv('clean_and_normalization_data_without_yap.csv', index=False,
-                                                    encoding='utf-8')
-
+    #
+    # clean_and_normalization_data_without_yap = tn.text_normaliztion_without_yap(orig_data)
+    # clean_and_normalization_data_without_yap.to_csv('clean_and_normalization_data_without_yap.csv', index=False,
+    #                                                 encoding='utf-8')
+    #
     # normalization_data = tn.text_normalization(orig_data)
     # normalization_data.to_csv('normalization_data.csv', index=False, encoding='utf-8')
+    #
+    # return orig_data, clean_data, data_without_punctuation_with_yap, clean_and_normalization_data_without_yap,\
+    #        data_without_punctuation_with_yap
 
-    return orig_data, clean_data, clean_and_normalization_data_without_yap
+    return clean_data
 
 def get_data_as_csv():
     orig_data = pd.read_csv('orig_data.csv')
     clean_data = pd.read_csv('clean_data.csv')
     clean_and_normalization_data_without_yap = pd.read_csv('clean_and_normalization_data_without_yap.csv')
+    yap_no_punct = pd.read_csv('data_without_punctuation_with_yap.csv')
     normalization_data = pd.read_csv('d_norm.csv')
-    return orig_data, clean_data, clean_and_normalization_data_without_yap, normalization_data
+    return orig_data, clean_data, clean_and_normalization_data_without_yap, yap_no_punct, normalization_data
+
 
 if __name__ == "__main__":
     main()

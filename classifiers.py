@@ -111,12 +111,12 @@ def random_forest_classifier(x_train_tf, train_df, x_test_tfidf):
     return predictions, predict_proba, random_forest
 
 
-def get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, only_rf):
+def get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, add_feature_selection):
     """
     this function return the scores and prediction of random forest classifier
     """
     prediction_RF, predict_proba_RF, rf_model = random_forest_classifier(x_train_tf, train_df, x_test_tfidf)
-    if only_rf:
+    if add_feature_selection:
         x_train_sel, selector = feature_selection.select_from_model(rf_model, x_train_tf, train_df)
         x_test_sel = selector.transform(x_test_tfidf)
         prediction_RF_new, predict_proba_RF_new, rf_new_model = random_forest_classifier(x_train_sel, train_df, x_test_sel)
@@ -124,23 +124,6 @@ def get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, 
                predict_proba_RF, get_classifier_evaluation(prediction_RF_new, test_df, 'random forest', label)
 
     return get_classifier_evaluation(prediction_RF, test_df, 'random forest', label), prediction_RF, predict_proba_RF
-
-
-def catboost_classifier(x_train_tf, train_df, x_test_tfidf):
-    """
-    classify data by cat boost classifier
-    :param x_train_tf: training data represented as counted vector
-    :param train_df: the training data
-    :param x_test_tfidf: test data represented as counted vector
-    :return: predicted labels
-    """
-    model = CatBoostClassifier(iterations=20)
-    x_train_tf = pd.DataFrame(x_train_tf)
-    x_test_tfidf = pd.DataFrame(x_test_tfidf)
-    model.fit(x_train_tf, train_df.label)
-    predictions = model.predict(x_test_tfidf)
-    predict_proba = model.predict_proba(x_test_tfidf)
-    return predictions, predict_proba
 
 
 def lightgbm_classifier(x_train_tf, train_df, x_test_tfidf):
@@ -188,31 +171,34 @@ def get_xgboost_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_d
     return get_classifier_evaluation(prediction_XGB, test_df, 'xgboost', label), prediction_XGB, prediction_proba_XGB
 
 
-def get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, label, only_rf):
+def get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, label, only_rf, selection):
     """
     this function return the scores of all the classifiers
     """
     scores = []
-    scores_M, prediction_M = get_majority_label_scores_and_prediction(test_df, label)
-
-    scores_NB, prediction_NB, predict_proba_NB = \
-        get_multinomial_naive_bayes_scores_and_predication(x_train_tf, x_test_tfidf, train_df, test_df, label)
-
-    scores_LR, prediction_LR, predict_proba_LR = \
-        get_logistic_regression_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label)
-
-    scores_LGB, prediction_LGB, prediction_proba_LGB = \
-        get_lightgbm_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label)
-
-    scores_XGB, prediction_XGB, prediction_proba_XGB = \
-        get_xgboost_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label)
 
     if only_rf:
         scores_RF, prediction_RF, predict_proba_RF, score_RF_new = \
-            get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, only_rf)
+            get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, selection)
         scores.append(scores_RF)
         scores.append(score_RF_new)
     else:
+        scores_RF, prediction_RF, predict_proba_RF, score_RF_new = \
+            get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, selection)
+
+        scores_M, prediction_M = get_majority_label_scores_and_prediction(test_df, label)
+
+        scores_NB, prediction_NB, predict_proba_NB = \
+            get_multinomial_naive_bayes_scores_and_predication(x_train_tf, x_test_tfidf, train_df, test_df, label)
+
+        scores_LR, prediction_LR, predict_proba_LR = \
+            get_logistic_regression_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label)
+
+        scores_LGB, prediction_LGB, prediction_proba_LGB = \
+            get_lightgbm_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label)
+
+        scores_XGB, prediction_XGB, prediction_proba_XGB = \
+            get_xgboost_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label)
         scores_RF, prediction_RF, predict_proba_RF = \
             get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, only_rf)
         plot_roc_curve(test_df, prediction_M, predict_proba_NB, predict_proba_LR, predict_proba_RF, prediction_proba_LGB, prediction_proba_XGB)
@@ -235,16 +221,16 @@ def plot_scores_by_feature_extraction(data, title, flag, only_rf):
     if flag == BAG_OF_WORDS:
         x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data, True)
         scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, "\n(bag of words) "
-                                            + title, only_rf)
+                                            + title, only_rf, True)
 
     elif flag == BOW_CHAR:
         x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data, False)
         scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df,
-                                            "\n(bow character level n grams) " + title, only_rf)
+                                            "\n(bow character level n grams) " + title, only_rf, True)
 
     else:  # WORDS_2_VEC
         x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_word2vec(data)
-        scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, "\n(word2vec) " + title, only_rf)
+        scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, "\n(word2vec) " + title, only_rf, True)
 
     return scores
 

@@ -178,14 +178,16 @@ def get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, labe
     scores = []
 
     if only_rf:
-        scores_RF, prediction_RF, predict_proba_RF, score_RF_new = \
-            get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, selection)
-        scores.append(scores_RF)
-        scores.append(score_RF_new)
+        if selection:
+            scores_RF, prediction_RF, predict_proba_RF, score_RF_new = \
+                get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, selection)
+            scores.append(scores_RF)
+            scores.append(score_RF_new)
+        else:
+            scores_RF, prediction_RF, predict_proba_RF = \
+                get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, selection)
+            scores.append(scores_RF)
     else:
-        scores_RF, prediction_RF, predict_proba_RF, score_RF_new = \
-            get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, selection)
-
         scores_M, prediction_M = get_majority_label_scores_and_prediction(test_df, label)
 
         scores_NB, prediction_NB, predict_proba_NB = \
@@ -199,8 +201,10 @@ def get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, labe
 
         scores_XGB, prediction_XGB, prediction_proba_XGB = \
             get_xgboost_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label)
+
         scores_RF, prediction_RF, predict_proba_RF = \
             get_random_forest_scores_and_prediction(x_train_tf, x_test_tfidf, train_df, test_df, label, only_rf)
+
         plot_roc_curve(test_df, prediction_M, predict_proba_NB, predict_proba_LR, predict_proba_RF, prediction_proba_LGB, prediction_proba_XGB)
         scores.append(scores_M)
         scores.append(scores_NB)
@@ -209,33 +213,33 @@ def get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, labe
         scores.append(scores_LGB)
         scores.append(scores_XGB)
 
-    plot_table_scores(scores, label, only_rf)
+    plot_table_scores(scores, label, only_rf, selection)
 
     return scores
 
 
-def plot_scores_by_feature_extraction(data, title, flag, only_rf):
+def plot_scores_by_feature_extraction(data, title, flag, only_rf, selection):
     """
     this function return the table score of all the classifiers by feature extraction
     """
     if flag == BAG_OF_WORDS:
         x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data, True)
         scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, "\n(bag of words) "
-                                            + title, only_rf, True)
+                                            + title, only_rf, selection)
 
     elif flag == BOW_CHAR:
         x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_bow_tfidf(data, False)
         scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df,
-                                            "\n(bow character level n grams) " + title, only_rf, True)
+                                            "\n(bow character level n grams) " + title, only_rf, selection)
 
     else:  # WORDS_2_VEC
         x_train_tf, x_test_tfidf, train_df, test_df = feature_extraction.get_word2vec(data)
-        scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, "\n(word2vec) " + title, only_rf, True)
+        scores = get_all_classifiers_scores(x_train_tf, x_test_tfidf, train_df, test_df, "\n(word2vec) " + title, only_rf, selection)
 
     return scores
 
 
-def plot_table_scores(scores, title, only_rf):
+def plot_table_scores(scores, title, only_rf, selection):
     """
     this function plot the scores of each classifier (recall, precision,...)
     """
@@ -247,11 +251,14 @@ def plot_table_scores(scores, title, only_rf):
     vals = np.around(df.values, 2)
     norm = plt.Normalize(vals.min() - 1, vals.max() + 1)
     colours = plt.cm.hot(norm(vals))
-    if only_rf:
+    if selection:
         rows_labels = ['random forest', 'random forest\nwith feature selection']
+    elif only_rf:
+        rows_labels = ['random forest']
     else:
         rows_labels = ['majority', 'naive bayes', 'regression logistic', 'random forest', 'lightgbm', 'xgboost ']
-    ax.table(cellText=df.values, colLabels=df.columns, loc='center', cellColours=colours, rowLabels=rows_labels)
+    ax.table(cellText=df
+             .values, colLabels=df.columns, loc='center', cellColours=colours, rowLabels=rows_labels)
     fig.tight_layout()
     plt.savefig("scores.png")
     plt.title("classifier_evaluation " + title)

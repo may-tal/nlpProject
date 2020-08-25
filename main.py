@@ -13,6 +13,7 @@ BOW_CHAR = 3
 
 def main():
     orig_data, clean_data, clean_and_normalization_data_without_yap, yap_no_punct, normalization_data = get_data_as_csv()
+    #clean_data = data_to_csv()
 
     # plot the scores of the best data
     clean_data_scores = classifiers.plot_scores_by_feature_extraction(clean_data, "clean data", BOW_CHAR, False)
@@ -22,13 +23,13 @@ def main():
     scores = classifiers.plot_scores_by_feature_extraction(orig_data, "original data", BOW_CHAR, False)
     classifiers.compare_our_result(clean_data_scores, norm_data_scores)
 
-    # plot the scores of the best data with feature selection - random forest classifier
-    clean_data_scores = classifiers.plot_scores_by_feature_extraction(clean_data, "clean data", BOW_CHAR, True)
-    norm_data_scores = classifiers.plot_scores_by_feature_extraction(normalization_data, "normalization data", BAG_OF_WORDS, True)
-
-    # random forest - word2vec
-    clean_data_scores = classifiers.plot_scores_by_feature_extraction(yap_no_punct, "clean data", WORD2VEC, True)
-    norm_data_scores = classifiers.plot_scores_by_feature_extraction(normalization_data, "normalization data", WORD2VEC, True)
+    # # plot the scores of the best data with feature selection - random forest classifier
+    # clean_data_scores = classifiers.plot_scores_by_feature_extraction(clean_data, "clean data", BOW_CHAR, True)
+    # norm_data_scores = classifiers.plot_scores_by_feature_extraction(normalization_data, "normalization data", BAG_OF_WORDS, True)
+    #
+    # # random forest - word2vec
+    # clean_data_scores = classifiers.plot_scores_by_feature_extraction(yap_no_punct, "clean data", WORD2VEC, True)
+    # norm_data_scores = classifiers.plot_scores_by_feature_extraction(normalization_data, "normalization data", WORD2VEC, True)
 
     # normalization_data_posnormalization_data_pos = normalization_data[normalization_data['label'] == 1]
 

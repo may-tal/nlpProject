@@ -66,8 +66,8 @@ def bow_character_level_n_grams(train_df, test_df):
     :return: the converted counted vectors and the mapping - training, test, cv
     """
     cv = CountVectorizer(analyzer='char_wb', ngram_range=(1,6), min_df=3, max_df=0.97)
-    x_train_counts = cv.fit_transform(train_df.text)
-    x_test_counts = cv.transform(test_df.text)
+    x_train_counts = cv.fit_transform(train_df.text.astype(np.str))
+    x_test_counts = cv.transform(test_df.text.astype(np.str))
 
     return x_train_counts, x_test_counts
 

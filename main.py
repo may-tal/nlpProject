@@ -12,22 +12,23 @@ WORD2VEC = 2
 BOW_CHAR = 3
 
 def main():
-    orig_data, clean_data, clean_and_normalization_data_without_yap, yap_no_punct, normalization_data = get_data_as_csv()
+    # read the csv data files
+    orig_data, clean_data, yap_punc_data, norm_no_yap_data, norm_data = get_data_as_csv()
 
-    # plot the scores of the best data
+    # plot the scores of the best data (clean data and normalization data) for each classifier
     clean_data_scores = classifiers.plot_scores_by_feature_extraction(clean_data, "clean data", BOW_CHAR, False, False)
-    norm_data_scores = classifiers.plot_scores_by_feature_extraction(normalization_data, "normalization data", BAG_OF_WORDS, False, False)
+    norm_data_scores = classifiers.plot_scores_by_feature_extraction(norm_data, "normalization data", BAG_OF_WORDS,
+                                                                     False, False)
 
     # plot the scores of the best data with feature selection - random forest classifier
     clean_rf_scores_feature_selection = classifiers.plot_scores_by_feature_extraction(clean_data, "clean data", BOW_CHAR, True, True)
-    norm_rf_scores_feature_selection = classifiers.plot_scores_by_feature_extraction(normalization_data, "normalization data", BAG_OF_WORDS, True, True)
+    norm_rf_scores_feature_selection = classifiers.plot_scores_by_feature_extraction(norm_data, "normalization data", BAG_OF_WORDS, True, True)
 
-    # random forest - word2vec
-    clean_data_scores = classifiers.plot_scores_by_feature_extraction(yap_no_punct, "clean data", WORD2VEC, True, False)
-    norm_data_scores = classifiers.plot_scores_by_feature_extraction(normalization_data, "normalization data", WORD2VEC, True, False)
+    # plot random forest scores with word2vec
+    clean_data_scores = classifiers.plot_scores_by_feature_extraction(yap_punc_data, "clean data", WORD2VEC, True, False)
+    norm_data_scores = classifiers.plot_scores_by_feature_extraction(norm_data, "normalization data", WORD2VEC, True, False)
 
     # normalization_data_posnormalization_data_pos = normalization_data[normalization_data['label'] == 1]
-
     # # K-means clustering
     # clustering.get_class(normalization_data_pos)
     #
@@ -58,27 +59,29 @@ def data_to_csv():
     clean_data = tn.get_clean_data(orig_data)
     clean_data.to_csv('clean_data.csv', index=False, encoding='utf-8')
 
-    # data_without_punctuation_with_yap = tn.get_data_without_punctuation_with_yap(orig_data)
-    # data_without_punctuation_with_yap.to_csv('data_without_punctuation_with_yap.csv', index=False, encoding='utf-8')
-    #
-    # clean_and_normalization_data_without_yap = tn.text_normaliztion_without_yap(orig_data)
-    # clean_and_normalization_data_without_yap.to_csv('clean_and_normalization_data_without_yap.csv', index=False,
-    #                                                 encoding='utf-8')
-    #
-    # normalization_data = tn.text_normalization(orig_data)
-    # normalization_data.to_csv('normalization_data.csv', index=False, encoding='utf-8')
-    #
-    # return orig_data, clean_data, data_without_punctuation_with_yap, clean_and_normalization_data_without_yap,\
-    #        data_without_punctuation_with_yap
-    return clean_data
+    yap_punc_data = tn.get_data_without_punctuation_with_yap(orig_data)
+    yap_punc_data.to_csv('yap_punc_data.csv', index=False, encoding='utf-8')
+
+    norm_no_yap_data = tn.text_normaliztion_without_yap(orig_data)
+    norm_no_yap_data.to_csv('norm_no_yap_data.csv', index=False,
+                                                    encoding='utf-8')
+
+    norm_data = tn.text_normalization(orig_data)
+    norm_data.to_csv('norm_data.csv', index=False, encoding='utf-8')
+
+    return orig_data, clean_data, yap_punc_data, norm_no_yap_data, norm_data
+
 
 def get_data_as_csv():
+    """
+    this function read the csv files and return them.
+    """
     orig_data = pd.read_csv('orig_data.csv')
     clean_data = pd.read_csv('clean_data.csv')
-    clean_and_normalization_data_without_yap = pd.read_csv('clean_and_normalization_data_without_yap.csv')
-    yap_no_punct = pd.read_csv('data_without_punctuation_with_yap.csv')
-    normalization_data = pd.read_csv('d_norm.csv')
-    return orig_data, clean_data, clean_and_normalization_data_without_yap, yap_no_punct, normalization_data
+    norm_no_yap_data = pd.read_csv('norm_no_yap_data.csv')
+    yap_punc_data = pd.read_csv('yap_punc_data.csv')
+    norm_data = pd.read_csv('norm_data.csv')
+    return orig_data, clean_data, norm_no_yap_data, yap_punc_data, norm_data
 
 
 if __name__ == "__main__":

@@ -15,12 +15,12 @@ def main():
     # read the csv data files
     orig_data, clean_data, yap_punc_data, norm_no_yap_data, norm_data = get_data_as_csv()
 
-    # plot the scores of the best data (clean data and normalization data) for each classifier
+    # plot the scores of the two bests combination of features (see the article for more details) for each classifier
     clean_data_scores = classifiers.plot_scores_by_feature_extraction(clean_data, "clean data", BOW_CHAR, False, False)
     norm_data_scores = classifiers.plot_scores_by_feature_extraction(norm_data, "normalization data", BAG_OF_WORDS,
                                                                      False, False)
 
-    # plot the scores of the best data with feature selection - random forest classifier
+    # plot the scores of the two bests combination of features with feature selection - just for random forest classifier
     clean_rf_scores_feature_selection = classifiers.plot_scores_by_feature_extraction(clean_data, "clean data", BOW_CHAR, True, True)
     norm_rf_scores_feature_selection = classifiers.plot_scores_by_feature_extraction(norm_data, "normalization data", BAG_OF_WORDS, True, True)
 
@@ -28,25 +28,9 @@ def main():
     clean_data_scores = classifiers.plot_scores_by_feature_extraction(yap_punc_data, "clean data", WORD2VEC, True, False)
     norm_data_scores = classifiers.plot_scores_by_feature_extraction(norm_data, "normalization data", WORD2VEC, True, False)
 
-    # normalization_data_posnormalization_data_pos = normalization_data[normalization_data['label'] == 1]
-    # # K-means clustering
-    # clustering.get_class(normalization_data_pos)
-    #
-    # # topic modeling
-    # vectors, vocab = tm.data_processing(normalization_data)
-    #
-    # # show topics - SVD
-    # u, s, vh = tm.svd(vectors)
-    # print(tm.get_topics(vh[:6], vocab))
-    # tm.print_messages_by_topic(normalization_data, u)
-    #
-    # # show topic - NMF
-    # w1, h1 = tm.nmf(vectors)
-    # print(tm.get_topics(h1, vocab))
-    #
-    # vectors, vocab = tm.data_processing(normalization_data)
-    # u, s, vh = tm.svd(vectors)
-    # print(tm.show_topics(vh[:6], vocab))
+    normalization_data_pos = norm_data[norm_data['label'] == 1]
+    # K-means clustering
+    clustering.get_class(normalization_data_pos)
 
 
 def data_to_csv():
@@ -86,4 +70,3 @@ def get_data_as_csv():
 
 if __name__ == "__main__":
     main()
-

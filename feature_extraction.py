@@ -49,8 +49,8 @@ def bag_of_words(train_df, test_df):
     :return: the converted counted vectors and the mapping - training, test, cv
     """
     cv = CountVectorizer(min_df=3, max_df=0.97, ngram_range=(1,3))
-    x_train_counts = cv.fit_transform(train_df.text)
-    x_test_counts = cv.transform(test_df.text)
+    x_train_counts = cv.fit_transform(train_df.text.astype(np.str))
+    x_test_counts = cv.transform(test_df.text.astype(np.str))
 
     return x_train_counts, x_test_counts
 
@@ -135,6 +135,7 @@ def add_feature_from_sentiment_lexicon(data, features):
 
     # the feature is calculate by number to sentimants words ic the sentence divide by number of words in the sentence
     for idx, message in data.iterrows():
+        message = np.str(message)
         count_neg = 0
         count_pos = 0
         for word in message[0].split():
@@ -209,7 +210,7 @@ def get_word2vec(data):
     test_embedding = np.zeros(shape=[len(test_df), 100])
     count = 0
 
-    for message in train_df.text:  # look up each message in model
+    for message in train_df.text.astype(np.str):  # look up each message in model
         embedded_message = message_vector(model, message)
         if embedded_message is None:
             count += 1
@@ -221,7 +222,7 @@ def get_word2vec(data):
         count += 1
 
     count = 0
-    for message in test_df.text:  # look up each message in model
+    for message in test_df.text.astype(np.str):  # look up each message in model
         embedded_message = message_vector(model, message)
         if embedded_message is None:
             count += 1

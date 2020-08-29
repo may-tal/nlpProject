@@ -135,7 +135,6 @@ def add_feature_from_sentiment_lexicon(data, features):
 
     # the feature is calculate by number to sentimants words ic the sentence divide by number of words in the sentence
     for idx, message in data.iterrows():
-        message = np.str(message)
         count_neg = 0
         count_pos = 0
         for word in str(message[0]).split():

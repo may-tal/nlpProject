@@ -97,12 +97,12 @@ def get_bow_tfidf(data, flag):
     """
     train_df, test_df = split_to_train_and_test(data)
     data_exploration(train_df)
-    if flag:  # bag of words
+    if flag:  # bag of words with sentiment lexicon
         x_train_counts, x_test_counts = bag_of_words(train_df, test_df)
     else:  # bow character level n grams
         x_train_counts, x_test_counts = bow_character_level_n_grams(train_df, test_df)
     x_train_tf, x_test_tfidf = tf_idf(x_train_counts, x_test_counts)
-    if flag: # bag of words
+    if flag: # bag of words with sentiment lexicon
         x_train_tf = add_feature_from_sentiment_lexicon(train_df, x_train_tf)
         x_test_tfidf = add_feature_from_sentiment_lexicon(test_df, x_test_tfidf)
     return x_train_tf, x_test_tfidf, train_df, test_df
@@ -178,7 +178,7 @@ def word2vec_model():
 
 def message_vector(word2vec_model, message):
     """
-    create word2vec for massege - for each word in the message
+    create word2vec for message - for each word in the message
     take the average of all the word vectors in a sentence
     and it will represent the message vector.
     :param word2vec_model: dictionary of pre-trained word2vec model
@@ -187,9 +187,9 @@ def message_vector(word2vec_model, message):
     """
     # remove out-of-vocabulary words
     message = message.split()
-    for word in message:
-        if word not in word2vec_model:
-            print(word)
+    # for word in message:
+    #     if word not in word2vec_model:
+    #         print(word)
     message = [word2vec_model[word] for word in message if word in word2vec_model]
     if len(message) == 0:
         return None

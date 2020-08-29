@@ -80,7 +80,7 @@ class Evaluator:
         """
         scores = [self.get_recall_score(), self.get_precision_score(), self.get_accuracy_score(), self.get_f1_score(),
                   self.get_fb_score()]
-        # self.show_error()
+        self.show_error()
         # self.plot_confusion_matrix(title + "\n" + data_name)
         return scores
 
